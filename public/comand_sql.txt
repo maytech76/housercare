@@ -1,0 +1,9 @@
+-------------------------------------
+---- NOTAS DE COMANDO SQL MANAGER ---
+-------------------------------------
+
+-- ELIMINAR CONTENIDO DE TABLA Y REINICAR AUTO-INCREMENT --
+
+TRUNCATE TABLE assignments;
+
+ALTER TABLE assignments AUTO_INCREMENT = 1;
