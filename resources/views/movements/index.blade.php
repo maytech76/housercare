@@ -42,7 +42,7 @@
                                         <th>Date</th>
                                         <th>Move Number</th>
                                         <th>Horse</th>
-                                        <th>Assigned by</th>
+                                        <th>Movement by</th>
                                         <th>Status</th>
                                         <th>Options</th>
                                     </tr>
@@ -57,7 +57,7 @@
                                         <td>
                                             {{ $movement->horse->name }}
                                         </td>
-                                        <td>{{ $movement->assignedUser->name ?? 'N/A' }}</td>
+                                        <td>{{ $movement->movementUser->name ?? 'N/A' }}</td>
 
                                         <td>
                                             @if($movement->status == 'ASSIGNED')
@@ -66,10 +66,8 @@
                                                 <span class="text-info">PARTIALLY</span>
                                             @elseif($movement->status == 'EXECUTED')
                                                 <span class="text-success">EXECUTED</span>
-                                            @elseif($movement->status == 'CANCELLED')
-                                                <span class="text-danger">CANCELLED</span>
                                             @else
-                                                <span class="badge bg-secondary">{{ $movement->status }}</span>
+                                                <span class="text-secondary">{{ $movement->status }}</span>
                                             @endif
                                         </td>
 
@@ -85,6 +83,7 @@
                                                    class="btn btn-warning" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
+
                                                 <form action="{{ route('movements.destroy', $movement) }}" 
                                                       method="POST" class="d-inline"
                                                       onsubmit="return confirm('Delete this movement?')">
@@ -94,6 +93,7 @@
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
+
                                                 @endif
                                                 @if($movement->canExecute())
                                                 <form action="{{ route('movements.execute', $movement) }}" 
@@ -127,6 +127,7 @@
                         @endif
                     </div>
                 </div>
+                
             </div>
         </div>
     </div>
@@ -206,9 +207,10 @@
                             <div class="col-md-4">
                                 <label class="fw-bold">&nbsp;</label>
                                 <button type="button" id="addMovementBtn" class="btn btn-success w-100">
-                                    <i class="fas fa-plus"></i> Add Destination
+                                    <i class="fas fa-plus"></i> Add Move
                                 </button>
                             </div>
+
                         </div>
 
                         <!-- Tabla de movimientos agregados -->
@@ -236,7 +238,7 @@
                                 </div>
                                 
                                 <!-- Resumen -->
-                                <div class="mt-3">
+                                {{-- <div class="mt-3">
                                     <div class="row">
                                         <div class="col-md-6">
                                             <strong>AM Movements:</strong> <span id="amCounter" class="badge bg-primary">0</span>
@@ -248,7 +250,7 @@
                                     <div class="mt-2">
                                         <strong>Total:</strong> <span id="totalCounter" class="badge bg-success">0 movements</span>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
 
@@ -266,6 +268,37 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Detalles de Asignaciones -->
+    <div class="modal fade" id="movementDetailsModal" tabindex="-1" aria-labelledby="movementDetailsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary-gradient">
+                    <h5 class="modal-title" id="movementDetailsModalLabel">
+                        Movement N° - <span id="modalMovementNumber"></span>
+                    </h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="movementDetailsContent">
+                        <!-- Los detalles se cargarán aquí via AJAX -->
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Cargando detalles de la asignación</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -318,6 +351,7 @@
 @endsection
 
 @push('scripts')
+
     <script>
         $(document).ready(function() {
             // Variables globales
@@ -551,6 +585,229 @@
             
             // Inicializar
             updateHorseInfo();
+        });
+    </script>
+
+
+     {{-- Modal Details Move --}}
+    <script>
+
+        // Script para cargar detalles del movimiento en modal
+        document.addEventListener('DOMContentLoaded', function() {
+            // Modal de detalles
+            const detailsModal = document.getElementById('movementDetailsModal');
+            
+            // Cuando se hace clic en cualquier botón de "Ver"
+            document.addEventListener('click', function(event) {
+                // Verificar si el clic fue en un botón de vista
+                const viewBtn = event.target.closest('.btn-info[title="View"]');
+                if (viewBtn) {
+                    event.preventDefault();
+                    
+                    // Obtener la URL del movimiento desde el href del botón
+                    const movementUrl = viewBtn.getAttribute('href');
+                    if (!movementUrl) return;
+                    
+                    // Cargar los detalles del movimiento
+                    loadMovementDetails(movementUrl);
+                    
+                    // Mostrar el modal
+                    const modal = new bootstrap.Modal(detailsModal);
+                    modal.show();
+                }
+            });
+
+            // Función para cargar detalles del movimiento via AJAX
+            function loadMovementDetails(url) {
+                const detailsContent = document.getElementById('movementDetailsContent');
+                
+                // Mostrar spinner de carga
+                detailsContent.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Cargando detalles del movimiento</p>
+                    </div>
+                `;
+                
+                // Realizar petición AJAX
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Actualizar contenido del modal con los datos recibidos
+                    renderMovementDetails(data);
+                })
+                .catch(error => {
+                    console.error('Error loading movement details:', error);
+                    detailsContent.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Error al cargar los detalles del movimiento. Por favor, intente nuevamente.
+                        </div>
+                    `;
+                });
+            }
+
+            // Función para renderizar los detalles del movimiento
+            function renderMovementDetails(movement) {
+                const detailsContent = document.getElementById('movementDetailsContent');
+                const modalTitle = document.getElementById('modalMovementNumber');
+                
+                // Actualizar título del modal
+                if (modalTitle) {
+                    modalTitle.textContent = movement.movement_number || 'N/A';
+                }
+                
+                // Formatear fecha
+                const formatDate = (dateString) => {
+                    if (!dateString) return 'N/A';
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString('es-ES');
+                };
+                
+                // Formatear hora
+                const formatTime = (dateString) => {
+                    if (!dateString) return 'N/A';
+                    const date = new Date(dateString);
+                    return date.toLocaleTimeString('es-ES', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
+                };
+                
+                // Determinar clase del badge según estado
+                const getStatusBadge = (status) => {
+                    const badges = {
+                        'ASSIGNED': 'warning',
+                        'PARTIALLY': 'info',
+                        'EXECUTED': 'success',
+                        'CANCELLED': 'danger'
+                    };
+                    return badges[status] || 'secondary';
+                };
+                
+                // Generar HTML de los detalles
+                const html = `
+                    <div class="movement-details">
+                        <!-- Información general del movimiento -->
+                        <div class="card mb-4">
+                            
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <p><strong>Númber:</strong> ${movement.movement_number || 'N/A'}</p>
+                                        <p><strong>Date:</strong> ${formatDate(movement.movement_date)}</p>
+                                        <p><strong>Status:</strong> 
+                                            <span class="text-${getStatusBadge(movement.status)}">
+                                                ${movement.status || 'N/A'}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><strong>Horse:</strong> ${movement.horse?.name || 'N/A'}</p>
+                                        <p><strong>Assigned_By:</strong> ${movement.assigned_user?.name || 'N/A'}</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><strong>Executed_by:</strong> ${movement.executor?.name || 'No ejecutado'}</p>
+                                        <p><strong>Executed_at:</strong> ${movement.executed_at ? formatDate(movement.executed_at) + ' ' + formatTime(movement.executed_at) : 'No ejecutado'}</p>
+                                    </div>
+                                </div>
+                                ${movement.notes ? `
+                                    <div class="mt-3">
+                                        <strong>Observations:</strong>
+                                        <p class="mb-0">${movement.notes}</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        
+                        <!-- Detalles del movimiento -->
+                        <div class="card">
+                            <div class="card-header border border-secondary">
+                                <h5 class="mb-0">Detalles de Movimiento</h5>
+                            </div>
+                            <div class="card-body border border-secondary">
+                                ${movement.details && movement.details.length > 0 ? `
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered border border-secondary">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Shift</th>
+                                                    <th>Sector</th>
+                                                    <th>Location</th>
+                                                    <th>Límit Date</th>
+                                                    <th>Status</th>
+                                                    <th>Ejecutado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="border border-secondary">
+                                                ${movement.details.map((detail, index) => `
+                                                    <tr>
+                                                        <td>${index + 1}</td>
+                                                        <td>
+                                                            <span class="${detail.shift === 'AM' ? 'text-primary' : 'text-warning'}">
+                                                                ${detail.shift === 'AM' ? 'AM' : 'PM'}
+                                                            </span>
+                                                        </td>
+                                                        <td>${detail.stable?.sector?.name || 'N/A'}</td>
+                                                        <td>${detail.stable?.name || 'N/A'}</td>
+                                                        <td>${detail.limit_date ? formatTime(detail.limit_date) : 'No límite'}</td>
+                                                        <td>
+                                                            <span class="${detail.is_executed ? 'text-success' : (new Date(detail.limit_date) < new Date() ? 'text-danger' : 'text-warning')}">
+                                                                ${detail.is_executed ? 'Executed' : (new Date(detail.limit_date) > new Date() ? 'Expired' : 'Earring')}
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            ${detail.is_executed ? 
+                                                                `${detail.executed_by ? 'Por: ' + (detail.executor?.name || 'N/A') + '<br>' : ''}
+                                                                ${formatDate(detail.executed_at)} ${formatTime(detail.executed_at)}` 
+                                                                : 'No Executed'}
+                                                        </td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                ` : `
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        This move has no associated details.
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                detailsContent.innerHTML = html;
+            }
+
+            // Cerrar modal cuando se oculta
+            detailsModal.addEventListener('hidden.bs.modal', function() {
+                const detailsContent = document.getElementById('movementDetailsContent');
+                // Restaurar spinner para la próxima vez
+                detailsContent.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Cargando detalles del movimiento</p>
+                    </div>
+                `;
+            });
         });
     </script>
 @endpush
