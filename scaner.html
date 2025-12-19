@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Check-in por QR</title>
+    <script src="https://cdn.jsdelivr.net/npm/instascan@1.0.0/dist/instascan.min.js"></script>
+    <style>
+        /* Estilos previos... */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        #resetBtn {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        #resetBtn:hover {
+            background-color: #f1b0b7;
+        }
+        #checkinBtn {
+            background-color: #d4edda;
+            color: #155724;
+            display: none; /* Oculto inicialmente */
+        }
+        #checkinBtn:hover {
+            background-color: #b1dfbb;
+        }
+        .status-badge.status-checkin {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+    </style>
+</head>
+<body>
+    <!-- Contenido previo... -->
+    
+    <div class="result-container" id="resultContainer">
+        <!-- Contenido previo del resultado... -->
+        
+        <div class="action-buttons">
+            <button id="resetBtn">Escanear otro QR</button>
+            <button id="checkinBtn">Confirmar Check-in</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables existentes...
+            const resetBtn = document.getElementById('resetBtn');
+            const checkinBtn = document.getElementById('checkinBtn');
+            let currentGuestId = null;
+            
+            // Configuración del escáner...
+            
+            scanner.addListener('scan', function(content) {
+                loadingElement.style.display = 'block';
+                resultContainer.style.display = 'none';
+                checkinBtn.style.display = 'none';
+                
+                fetch(`http://events.test/api/guests/find-by-code/${content}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.is_valid) {
+                            currentGuestId = data.guest.id;
+                            
+                            // Mostrar datos del invitado
+                            guestName.textContent = data.guest.full_name;
+                            eventId.textContent = data.guest.event_id;
+                            checkedInAt.textContent = data.guest.checked_in_at;
+                            guestPhoto.src = data.guest.photo_url;
+                            guestQr.src = data.guest.qr_code_url;
+                            
+                            // Mostrar botón de check-in solo si el estado no es "checkin"
+                            if (data.guest.status !== 'checkin') {
+                                checkinBtn.style.display = 'block';
+                            }
+                            
+                            resultContainer.style.display = 'block';
+                        } else {
+                            alert(data.message || 'QR no válido');
+                        }
+                    })
+                    .finally(() => {
+                        loadingElement.style.display = 'none';
+                    });
+            });
+            
+            // Botón Reset
+            resetBtn.addEventListener('click', function() {
+                currentGuestId = null;
+                resultContainer.style.display = 'none';
+                checkinBtn.style.display = 'none';
+                scanner.start(backCamera); // Reiniciar cámara
+            });
+            
+            // Botón Check-in
+            checkinBtn.addEventListener('click', function() {
+                if (!currentGuestId) return;
+                
+                if (!confirm('¿Confirmar check-in para este invitado?')) return;
+                
+                fetch(`http://events.test/api/guests/${currentGuestId}/checkin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // Solo necesario si usas CSRF
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Check-in registrado exitosamente!');
+                        checkinBtn.style.display = 'none';
+                        document.getElementById('statusBadge').className = 'status-badge status-checkin';
+                        document.getElementById('statusBadge').textContent = 'CHECK-IN REGISTRADO';
+                    } else {
+                        alert(data.message || 'Error al registrar check-in');
+                    }
+                })
+                .catch(error => {
+                    alert('Error en la conexión');
+                    console.error(error);
+                });
+            });
+            
+            // Iniciar cámara...
+        });
+    </script>
+</body>
+</html>
