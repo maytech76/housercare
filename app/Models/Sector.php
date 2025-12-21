@@ -61,8 +61,13 @@ class Sector extends Model
         return $horses;
     }
 
-    public function movementDetails()
-    {
+    public function movementDetails(){
+
         return $this->hasMany(MovementDetail::class);
+    }
+
+    public function movements(){
+
+        return $this->hasMany(Movement::class);
     }
 }

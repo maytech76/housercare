@@ -3,16 +3,19 @@
 @section('content')
 <section>
     <div class="container">
+
+        {{-- Encabezado --}}
         <div class="row">
             <div class="col-md-12 col-lg-12 ml-sm-auto px-4">
+
                 <!-- Topbar -->
                 <div class="topbar my-4 rounded">
                     <div class="d-flex justify-content-between align-items-center px-3">
-                        <h5 class="m-0">Knight Movements</h5>
+                        <h5 class="m-0">Director Movements</h5>
                     </div>
                 </div>
     
-                <!-- Movements List -->
+                <!-- Tablet Movements List -->
                 <div class="card mb-4">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">All movements</h6>
@@ -42,7 +45,7 @@
                                         <th>Date</th>
                                         <th>Move Number</th>
                                         <th>Horse</th>
-                                        <th>Movement by</th>
+                                        <th>Assigned by</th>
                                         <th>Status</th>
                                         <th>Options</th>
                                     </tr>
@@ -57,7 +60,7 @@
                                         <td>
                                             {{ $movement->horse->name }}
                                         </td>
-                                        <td>{{ $movement->movementUser->name ?? 'N/A' }}</td>
+                                        <td>{{ $movement->assignedUser->name }}</td>
 
                                         <td>
                                             @if($movement->status == 'ASSIGNED')
@@ -78,32 +81,34 @@
                                                    class="btn btn-info" title="View">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
+
                                                 @if($movement->status == 'ASSIGNED')
                                                 <button href="{{ route('movements.edit', $movement) }}" 
                                                    class="btn btn-warning" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
 
-                                                <form action="{{ route('movements.destroy', $movement) }}" 
-                                                      method="POST" class="d-inline"
-                                                      onsubmit="return confirm('Delete this movement?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger" title="Delete">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
+                                                
+                                                <button class="btn btn-danger delete-movement-btn" 
+                                                        title="Delete"
+                                                        data-movement-id="{{ $movement->id }}"
+                                                        data-movement-number="{{ $movement->movement_number }}"
+                                                        data-horse-name="{{ $movement->horse->name }}">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                                
 
                                                 @endif
                                                 @if($movement->canExecute())
+
                                                 <form action="{{ route('movements.execute', $movement) }}" 
-                                                      method="POST" class="d-inline"
-                                                      onsubmit="return confirm('Execute this movement?')">
+                                                    method="POST" class="d-inline execute-movement-form">
                                                     @csrf
                                                     <button type="submit" class="btn btn-success" title="Execute">
                                                         <i class="bi bi-check-circle"></i>
                                                     </button>
                                                 </form>
+                                                
                                                 @endif
                                             </div>
 
@@ -119,20 +124,14 @@
                             </table>
                         </div>
     
-                        <!-- Paginación -->
-                        @if($movements->hasPages())
-                        <div class="d-flex justify-content-center mt-3">
-                            {{ $movements->links() }}
-                        </div>
-                        @endif
                     </div>
                 </div>
-                
+
             </div>
         </div>
     </div>
 
-    <!-- Modal para Nuevo Movimiento - VERSIÓN FINAL (sin verificación de capacidad) -->
+   <!-- Modal para Nuevo Movimiento -->
     <div class="modal fade" id="newMovementModal" tabindex="-1" aria-labelledby="newMovementModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -147,7 +146,7 @@
                     <div class="modal-body">
                         <!-- Información general -->
                         <div class="row mb-3">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <label class="fw-bold">Movement Date</label>
                                 <div class="form-control" style="border: none; background: transparent;">
                                     {{ date('d/m/Y') }}
@@ -155,7 +154,7 @@
                                 <input type="hidden" name="movement_date" value="{{ date('Y-m-d') }}">
                             </div>
                             
-                            <div class="col-md-4">
+                            <div class="col-md-8">
                                 <label for="horse_id" class="fw-bold">Select Horse *</label>
                                 <select name="horse_id" id="horse_id" class="form-select" required>
                                     <option value="">Select a horse</option>
@@ -168,103 +167,142 @@
                                     @endforeach
                                 </select>
                             </div>
-                            
-                            <div class="col-md-2">
-                                <label for="shift_select" class="fw-bold">Shift *</label>
-                                <select id="shift_select" class="form-control border border-secondary">
-                                    <option value="AM">AM</option>
-                                    <option value="PM">PM</option>
-                                </select>
-                            </div>
-                            
-                            <div class="col-md-3">
-                                <label for="limit_date_input" class="fw-bold">Limit Time</label>
-                                <input type="time" id="limit_date_input" 
-                                       class="form-control border border-secondary"
-                                       value="12:00">
-                            </div>
                         </div>
 
                         <!-- Información del caballo seleccionado -->
                         <div class="alert alert-info mb-3" id="horseInfo" style="display: none;">
-                            <strong>Current Location:</strong> <span id="currentStable"></span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Current Location:</strong> <span id="currentStable"></span>
+                                </div>
+                                <div class="text-muted">
+                                    <small>You can add multiple movement details with different limit dates</small>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Formulario para agregar destino -->
-                        <div class="row mb-3">
-                            <div class="col-md-8">
-                                <label for="to_stable_id" class="fw-bold">Destination Stable *</label>
-                                <select id="to_stable_id" class="form-control border border-secondary">
-                                    <option value="">Select destination stable</option>
-                                    @foreach($stables as $stable)
-                                        <option value="{{ $stable->id }}">
-                                            {{ $stable->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                        <!-- Formulario para agregar detalles -->
+                        <div class="card border-primary mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="m-0">
+                                    <i class="fas fa-plus-circle me-2"></i>Add Movement Details
+                                    <small class="float-end">(Optional - You can add multiple)</small>
+                                </h6>
                             </div>
-                            
-                            <div class="col-md-4">
-                                <label class="fw-bold">&nbsp;</label>
-                                <button type="button" id="addMovementBtn" class="btn btn-success w-100">
-                                    <i class="fas fa-plus"></i> Add Move
-                                </button>
+                            <div class="card-body">
+                                <div class="row g-3 align-items-center">
+                                    <!-- Shift -->
+                                    <div class="col-12 col-sm-6 col-md-2 col-lg-2">
+                                        <label for="shift_select" class="form-label fw-bold mb-1">Shift *</label>
+                                        <select id="shift_select" class="form-select border border-secondary">
+                                            <option value="AM">AM</option>
+                                            <option value="PM">PM</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Destination Stable -->
+                                    <div class="col-12 col-sm-6 col-md-4 col-lg-4">
+                                        <label for="to_stable_id" class="form-label fw-bold mb-1">Destination Stable *</label>
+                                        <select id="to_stable_id" class="form-select border border-secondary">
+                                            <option value="">Select destination stable</option>
+                                            @foreach($stables as $stable)
+                                                <option value="{{ $stable->id }}">
+                                                    {{ $stable->name }}
+                                                    @if($stable->sector)
+                                                        <small class="text-muted">({{ $stable->sector->name }})</small>
+                                                    @endif
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Limit Date & Time -->
+                                    <div class="col-12 col-sm-8 col-md-4 col-lg-4">
+                                        <label for="limit_date_input" class="form-label fw-bold mb-1">Limit Date</label>
+                                        <div class="input-group">
+                                            <input type="date" id="limit_date_input" 
+                                                class="form-control border border-secondary">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-calendar"></i>
+                                            </span>
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                    <!-- Add Button -->
+                                    <div class="col-12 col-sm-4 col-md-2 col-lg-2 d-grid mt-5">
+                                        <button type="button" id="addMovementBtn" class="btn btn-success h-100" 
+                                                title="Add movement detail">
+                                            <i class="fas fa-plus"></i> Add 
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="alert alert-warning mb-0">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <small>
+                                            You can add multiple movement details in the same 
+                                            shift (AM/PM) but with different limit dates. 
+                                            Each detail must have a unique combination of 
+                                            location and limit date.
+                                        </small>
+                                    </div>
+                                </div>
                             </div>
-
                         </div>
 
                         <!-- Tabla de movimientos agregados -->
                         <div class="card mt-3">
-                            <div class="card-header bg-primary text-white">
-                                <h6 class="m-0">Movement List</h6>
+                            <div class="card-header bg-secondary text-white">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0">Movement Details Added</h6>
+                                    <div>
+                                        <span class="badge bg-primary" id="amCounter">0 AM</span>
+                                        <span class="badge bg-warning ms-2" id="pmCounter">0 PM</span>
+                                        <span class="badge bg-success ms-2" id="totalCounter">0 total</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table class="table table-bordered" id="movementsTable">
-                                        <thead>
+                                    <table class="table table-bordered table-hover" id="movementsTable">
+                                        <thead class="table-light">
                                             <tr>
-                                                <th>#</th>
-                                                <th>Horse</th>
-                                                <th>Shift</th>
-                                                <th>Destination</th>
-                                                <th>Limit Time</th>
-                                                <th class="text-center">Actions</th>
+                                                <th width="5%">#</th>
+                                                <th width="25%">Horse</th>
+                                                <th width="10%">Shift</th>
+                                                <th width="30%">Destination</th>
+                                                <th width="20%">Limit Date</th>
+                                                <th width="10%" class="text-center">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody id="movementsBody">
-                                            <!-- Los movimientos se agregarán aquí -->
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted py-4">
+                                                    No movement details added yet. You can still save the movement without details.
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
-                                
-                                <!-- Resumen -->
-                                {{-- <div class="mt-3">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <strong>AM Movements:</strong> <span id="amCounter" class="badge bg-primary">0</span>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <strong>PM Movements:</strong> <span id="pmCounter" class="badge bg-warning">0</span>
-                                        </div>
-                                    </div>
-                                    <div class="mt-2">
-                                        <strong>Total:</strong> <span id="totalCounter" class="badge bg-success">0 movements</span>
-                                    </div>
-                                </div> --}}
                             </div>
                         </div>
 
                         <!-- Observaciones -->
                         <div class="mt-3">
                             <label for="notes" class="fw-bold">Observations</label>
-                            <textarea name="notes" id="notes" class="form-control" rows="2" placeholder="Additional observations..."></textarea>
+                            <textarea name="notes" id="notes" class="form-control" rows="3" 
+                                    placeholder="Additional observations about this movement...">{{ old('notes') }}</textarea>
+                            <small class="text-muted">Optional - Any additional information about this movement</small>
                         </div>
                     </div>
                     
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success" id="submitBtn" disabled>
-                            <i class="bi bi-check-circle"></i> Save Movements
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-success" id="submitBtn">
+                            <i class="bi bi-check-circle me-2"></i>Save Movement
                         </button>
                     </div>
                 </form>
@@ -303,61 +341,41 @@
         </div>
     </div>
 
-    <!-- Modal para Editar Movimiento -->
+    <!-- Modal para Editar Movimiento (vacío, se llena dinámicamente) -->
     <div class="modal fade" id="editMovementModal" tabindex="-1" aria-labelledby="editMovementModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editMovementModalLabel">
-                        <i class="fas fa-edit me-2"></i>Edit Movement
+                        <i class="fas fa-edit me-2"></i>Editttt Movement
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                
                 <div class="modal-body" id="editMovementContent">
-                    <!-- Contenido cargado dinámicamente -->
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-3">Loading movement details...</p>
-                    </div>
+                    <!-- El contenido se cargará aquí dinámicamente -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal para Confirmar Eliminación de Detalle -->
-    <div class="modal fade" id="confirmDeleteDetailModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirm Delete</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete this movement detail?</p>
-                    <input type="hidden" id="detailToDelete">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
+
 
 </section>
 @endsection
 
 @push('scripts')
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    
+    {{-- Script para creación de movimientos - Versión con AJAX y SweetAlert2 --}}
     <script>
         $(document).ready(function() {
             // Variables globales
             let movements = [];
             let rowCount = 0;
-            const addedHorseShifts = new Set();
             
             // Función para actualizar información del caballo
             function updateHorseInfo() {
@@ -376,31 +394,6 @@
                 }
             }
             
-            // Función para validar movimiento (SIMPLIFICADA - sin verificación de capacidad)
-            function validateMovement(horseId, stableId, shift) {
-                // Validar campos requeridos
-                if (!horseId || !stableId || !shift) {
-                    Swal.fire('Error', 'Please fill all required fields', 'error');
-                    return false;
-                }
-                
-                // Verificar si el caballo ya tiene movimiento en este turno
-                const horseShiftKey = `${horseId}-${shift}`;
-                if (addedHorseShifts.has(horseShiftKey)) {
-                    Swal.fire('Warning', 'This horse already has a movement in the ' + shift + ' shift', 'warning');
-                    return false;
-                }
-                
-                // Verificar que no sea el mismo establo (OPCIONAL - puedes comentar esto si quieres permitirlo)
-                const currentStableId = $('#horse_id option:selected').data('stable-id');
-                if (currentStableId && currentStableId == stableId) {
-                    Swal.fire('Warning', 'This horse is already in this stable!', 'warning');
-                    return false;
-                }
-                
-                return true;
-            }
-            
             // Función para agregar movimiento a la tabla
             $('#addMovementBtn').on('click', function() {
                 const horseId = $('#horse_id').val();
@@ -408,7 +401,7 @@
                 const shift = $('#shift_select').val();
                 const stableId = $('#to_stable_id').val();
                 const stableName = $('#to_stable_id option:selected').text();
-                const limitTime = $('#limit_date_input').val();
+                const limitDate = $('#limit_date_input').val();
                 
                 // Validar campos básicos
                 if (!horseId) {
@@ -426,10 +419,26 @@
                     return;
                 }
                 
-                // Validar movimiento (solo verifica duplicados en mismo turno)
-                const horseShiftKey = `${horseId}-${shift}`;
-                if (addedHorseShifts.has(horseShiftKey)) {
-                    Swal.fire('Warning', 'This horse already has a movement in the ' + shift + ' shift', 'warning');
+                // Validar fecha límite si se proporciona
+                if (limitDate) {
+                    const limitDateTime = new Date(limitDate);
+                    const now = new Date();
+                    if (limitDateTime < now) {
+                        Swal.fire('Warning', 'Limit date cannot be in the past', 'warning');
+                        return;
+                    }
+                }
+                
+                // Verificar si ya existe exactamente el mismo movimiento (mismo turno + mismo establo + misma fecha)
+                const duplicate = movements.find(movement => 
+                    movement.horse_id === horseId &&
+                    movement.shift === shift &&
+                    movement.to_stable_id === stableId &&
+                    movement.limit_date === limitDate
+                );
+                
+                if (duplicate) {
+                    Swal.fire('Warning', 'This exact movement already exists in the list', 'warning');
                     return;
                 }
                 
@@ -441,35 +450,42 @@
                     shift: shift,
                     to_stable_id: stableId,
                     stable_name: stableName,
-                    limit_time: limitTime,
-                    limit_date: formatLimitDate(limitTime)
+                    limit_date: limitDate || null,
+                    limit_date_display: limitDate ? formatDateTimeDisplay(limitDate) : 'No limit date'
                 };
                 
                 // Agregar a la lista
                 movements.push(movement);
-                addedHorseShifts.add(horseShiftKey);
                 
                 // Actualizar tabla
                 updateMovementsTable();
                 
-                // Limpiar formulario (solo destino y hora límite)
+                // Limpiar formulario (solo destino y fecha límite)
                 $('#to_stable_id').val('');
-                $('#limit_date_input').val(shift === 'AM' ? '12:00' : '18:00');
+                $('#limit_date_input').val('');
                 
                 // Mostrar confirmación
                 Swal.fire({
                     icon: 'success',
                     title: 'Added',
-                    text: 'Movement added to the list',
+                    text: 'Movement detail added to the list',
                     timer: 1500,
                     showConfirmButton: false
                 });
             });
             
-            // Función para formatear fecha límite completa
-            function formatLimitDate(time) {
-                const today = "{{ date('Y-m-d') }}";
-                return `${today} ${time}:00`;
+            // Función para formatear fecha para visualización
+            function formatDateTimeDisplay(dateTimeString) {
+                if (!dateTimeString) return 'No limit date';
+                const date = new Date(dateTimeString);
+                return date.toLocaleString('es-ES', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                }).replace(',', '');
             }
             
             // Función para actualizar tabla de movimientos
@@ -477,65 +493,75 @@
                 const tbody = $('#movementsBody');
                 tbody.empty();
                 
-                let amCount = 0;
-                let pmCount = 0;
-                
-                movements.forEach((movement, index) => {
-                    // Contar por turno
-                    if (movement.shift === 'AM') amCount++;
-                    if (movement.shift === 'PM') pmCount++;
-                    
-                    const row = `
-                        <tr id="movement-row-${movement.id}">
-                            <td>${index + 1}</td>
-                            <td>
-                                ${movement.horse_name}
-                                <input type="hidden" name="details[${index}][horse_id]" value="${movement.horse_id}">
-                            </td>
-                            <td>
-                                ${movement.shift}
-                                <input type="hidden" name="details[${index}][shift]" value="${movement.shift}">
-                            </td>
-                            <td>
-                                ${movement.stable_name}
-                                <input type="hidden" name="details[${index}][to_stable_id]" value="${movement.to_stable_id}">
-                            </td>
-                            <td>
-                                ${movement.limit_time}
-                                <input type="hidden" name="details[${index}][limit_date]" value="${movement.limit_date}">
-                            </td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-danger btn-sm remove-movement" 
-                                        data-movement-id="${movement.id}"
-                                        data-horse-shift="${movement.horse_id}-${movement.shift}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                if (movements.length === 0) {
+                    const emptyRow = `
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">
+                                No movement details added yet. You can still save the movement without details.
                             </td>
                         </tr>
                     `;
+                    tbody.append(emptyRow);
+                } else {
+                    // Agrupar movimientos por turno para contar
+                    let amCount = 0;
+                    let pmCount = 0;
                     
-                    tbody.append(row);
-                });
+                    movements.forEach((movement, index) => {
+                        if (movement.shift === 'AM') amCount++;
+                        if (movement.shift === 'PM') pmCount++;
+                        
+                        const row = `
+                            <tr id="movement-row-${movement.id}">
+                                <td>${index + 1}</td>
+                                <td>
+                                    ${movement.horse_name}
+                                    <input type="hidden" name="details[${index}][horse_id]" value="${movement.horse_id}">
+                                </td>
+                                <td>
+                                    <span class="badge ${movement.shift === 'AM' ? 'bg-primary' : 'bg-warning'}">
+                                        ${movement.shift}
+                                    </span>
+                                    <input type="hidden" name="details[${index}][shift]" value="${movement.shift}">
+                                </td>
+                                <td>
+                                    ${movement.stable_name}
+                                    <input type="hidden" name="details[${index}][to_stable_id]" value="${movement.to_stable_id}">
+                                </td>
+                                <td>
+                                    ${movement.limit_date_display}
+                                    <input type="hidden" name="details[${index}][limit_date]" value="${movement.limit_date}">
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-danger btn-sm remove-movement" 
+                                            data-movement-id="${movement.id}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        
+                        tbody.append(row);
+                    });
+                    
+                    // Actualizar contadores
+                    $('#amCounter').text(amCount);
+                    $('#pmCounter').text(pmCount);
+                    $('#totalCounter').text(movements.length + ' detail(s)');
+                }
                 
-                // Actualizar contadores
-                $('#amCounter').text(amCount);
-                $('#pmCounter').text(pmCount);
-                $('#totalCounter').text(movements.length + ' movements');
-                
-                // Habilitar/deshabilitar botón de envío
-                $('#submitBtn').prop('disabled', movements.length === 0);
+                // Habilitar botón de envío (siempre habilitado ahora)
+                $('#submitBtn').prop('disabled', false);
             }
             
             // Función para eliminar movimiento
             $(document).on('click', '.remove-movement', function() {
                 const movementId = $(this).data('movement-id');
-                const horseShift = $(this).data('horse-shift');
                 
                 // Encontrar y eliminar el movimiento
                 const movementIndex = movements.findIndex(m => m.id === movementId);
                 if (movementIndex !== -1) {
                     movements.splice(movementIndex, 1);
-                    addedHorseShifts.delete(horseShift);
                     
                     // Actualizar tabla
                     updateMovementsTable();
@@ -543,50 +569,117 @@
                     Swal.fire({
                         icon: 'info',
                         title: 'Removed',
-                        text: 'Movement removed from the list',
+                        text: 'Movement detail removed from the list',
                         timer: 1500,
                         showConfirmButton: false
                     });
                 }
             });
             
+            // Configurar fecha mínima en el input datetime-local
+            const limitDateInput = $('#limit_date_input');
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+            limitDateInput.attr('min', minDateTime);
+            
             // Event listeners
             $('#horse_id').on('change', function() {
                 updateHorseInfo();
             });
             
+            // Cuando se cambia el turno, ajustar sugerencia de fecha
             $('#shift_select').on('change', function() {
-                // Ajustar hora límite por defecto según el turno
                 const shift = $(this).val();
-                const limitTimeInput = $('#limit_date_input');
+                const now = new Date();
                 
                 if (shift === 'AM') {
-                    limitTimeInput.val('12:00');
-                    limitTimeInput.attr('max', '12:00');
-                } else if (shift === 'PM') {
-                    limitTimeInput.val('18:00');
-                    limitTimeInput.attr('min', '12:01');
+                    // Para turno AM, sugerir hoy a las 12:00
+                    now.setHours(12, 0, 0, 0);
+                } else {
+                    // Para turno PM, sugerir hoy a las 18:00
+                    now.setHours(18, 0, 0, 0);
                 }
+                
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                
+                limitDateInput.val(`${year}-${month}-${day}T${hours}:${minutes}`);
             });
             
-            // Validar formulario antes de enviar
+            // ====== PARTE MODIFICADA: Envío del formulario con AJAX y SweetAlert2 ======
             $('#movementForm').on('submit', function(e) {
-                if (movements.length === 0) {
-                    e.preventDefault();
-                    Swal.fire('Error', 'Please add at least one movement to the list', 'error');
-                    return false;
-                }
+                e.preventDefault(); // Prevenir envío normal
                 
-                // Mostrar loading en el submit
-                $('#submitBtn').html('<i class="fas fa-spinner fa-spin"></i> Saving...').prop('disabled', true);
+                const form = $(this);
+                const submitBtn = $('#submitBtn');
+                const originalHtml = submitBtn.html();
                 
-                return confirm(`Are you sure you want to save ${movements.length} movements?`);
+                // Deshabilitar botón y mostrar loading inmediatamente
+                submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Saving...').prop('disabled', true);
+                
+                // Enviar el formulario via AJAX
+                $.ajax({
+                    url: form.attr('action'),
+                    method: 'POST',
+                    data: form.serialize(),
+                    success: function(response) {
+                        // Cerrar el modal
+                        $('#newMovementModal').modal('hide');
+                        
+                        // Mostrar SweetAlert2 de éxito después de 300ms
+                        setTimeout(() => {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Movement created successfully',
+                                icon: 'success',
+                                timer: 2000,
+                                showConfirmButton: false,
+                                timerProgressBar: true
+                            }).then(() => {
+                                // Recargar la página para actualizar la lista
+                                window.location.reload();
+                            });
+                        }, 300);
+                    },
+                    error: function(xhr) {
+                        console.error('Error:', xhr);
+                        submitBtn.html(originalHtml).prop('disabled', false);
+                        
+                        let errorMessage = 'Error creating movement';
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            // Mostrar errores de validación
+                            const errors = Object.values(xhr.responseJSON.errors).flat();
+                            errorMessage = errors.join('<br>');
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        
+                        Swal.fire({
+                            title: 'Error!',
+                            html: errorMessage,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
             });
+            // ====== FIN DE LA PARTE MODIFICADA ======
             
             // Inicializar
             updateHorseInfo();
+            // Establecer valor inicial basado en el turno seleccionado
+            $('#shift_select').trigger('change');
         });
     </script>
+    
 
 
      {{-- Modal Details Move --}}
@@ -810,4 +903,487 @@
             });
         });
     </script>
+
+
+    {{-- Script para manejar la edición de movimientos --}}
+    <script>
+        $(document).ready(function() {
+            // Variables globales para la edición
+            let newDetails = [];
+            let deletedDetails = [];
+            let hasChanges = false;
+            
+            // Cuando se hace clic en el botón de editar
+            $(document).on('click', '.btn-warning[title="Edit"]', function(e) {
+                e.preventDefault();
+                
+                const editUrl = $(this).attr('href');
+                if (!editUrl) return;
+                
+                // Resetear flag de cambios
+                hasChanges = false;
+                
+                // Mostrar spinner en el modal
+                $('#editMovementContent').html(`
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Loading movement details...</p>
+                    </div>
+                `);
+                
+                // Mostrar el modal
+                const editModal = new bootstrap.Modal(document.getElementById('editMovementModal'));
+                editModal.show();
+                
+                // Cargar el formulario via AJAX
+                fetch(editUrl + '?ajax=1', {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    $('#editMovementContent').html(data.html);
+                    // Inicializar el formulario de edición
+                    initializeEditForm();
+                })
+                .catch(error => {
+                    console.error('Error loading edit form:', error);
+                    $('#editMovementContent').html(`
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Error loading edit form. Please try again.
+                            <br><small>${error.message}</small>
+                        </div>
+                    `);
+                });
+            });
+            
+            // Función para inicializar el formulario de edición
+            function initializeEditForm() {
+                // Resetear variables
+                newDetails = [];
+                deletedDetails = [];
+                hasChanges = false;
+                
+                // Monitorear cambios en las observaciones
+                $('#notes').on('input', function() {
+                    const originalNotes = $(this).attr('data-original') || $(this).val();
+                    if ($(this).val() !== originalNotes) {
+                        hasChanges = true;
+                    }
+                });
+                
+                // Agregar nuevo detalle
+                $('#addNewDetailBtn').off('click').on('click', function() {
+                    addNewDetail();
+                });
+                
+                // Eliminar detalle existente
+                $('.delete-detail-btn').off('click').on('click', function() {
+                    const detailId = $(this).data('detail-id');
+                    deleteExistingDetail(detailId);
+                });
+                
+                // Envío del formulario
+                $('#editMovementForm').off('submit').on('submit', function(e) {
+                    e.preventDefault();
+                    submitEditForm();
+                });
+            }
+            
+
+            // Función para agregar nuevo detalle (en edición)
+            function addNewDetail() {
+                const shift = $('#new_shift').val();
+                const stableId = $('#new_to_stable_id').val();
+                const stableName = $('#new_to_stable_id option:selected').text().split('(')[0].trim();
+                const limitDate = $('#new_limit_date').val();
+                
+                // Validaciones
+                if (!stableId) {
+                    Swal.fire('Error', 'Please select a destination stable', 'error');
+                    return;
+                }
+                
+                // Verificar duplicados exactos (mismo turno + mismo establo + misma fecha)
+                const isDuplicate = newDetails.some(detail => 
+                    detail.shift === shift && 
+                    detail.to_stable_id === stableId && 
+                    detail.limit_date === limitDate
+                );
+                
+                if (isDuplicate) {
+                    Swal.fire('Warning', 'This exact movement detail already exists in the list', 'warning');
+                    return;
+                }
+                
+                // También verificar en detalles existentes no eliminados
+                let existingDuplicate = false;
+                $('#existingDetailsBody tr:visible').each(function() {
+                    const existingShift = $(this).find('input[name*="[shift]"]').val();
+                    const existingStableId = $(this).find('input[name*="[to_stable_id]"]').val();
+                    const existingLimitDate = $(this).find('input[name*="[limit_date]"]').val();
+                    
+                    if (existingShift === shift && 
+                        existingStableId === stableId && 
+                        existingLimitDate === limitDate) {
+                        existingDuplicate = true;
+                        return false; // Salir del each
+                    }
+                });
+                
+                if (existingDuplicate) {
+                    Swal.fire('Warning', 'This exact movement detail already exists in the movement', 'warning');
+                    return;
+                }
+                
+                // Crear nuevo detalle
+                const newDetail = {
+                    id: 'new-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                    shift: shift,
+                    to_stable_id: stableId,
+                    stable_name: stableName,
+                    limit_date: limitDate || null,
+                    limit_date_display: limitDate ? formatDateTimeDisplay(limitDate) : 'No limit date'
+                };
+                
+                newDetails.push(newDetail);
+                hasChanges = true;
+                updateNewDetailsTable();
+                
+                // Limpiar formulario
+                $('#new_to_stable_id').val('');
+                $('#new_limit_date').val('');
+            }
+
+            // Función para formatear fecha para visualización
+            function formatDateTimeDisplay(dateTimeString) {
+                if (!dateTimeString) return 'No limit date';
+                const date = new Date(dateTimeString);
+                return date.toLocaleString('es-ES', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                }).replace(',', '');
+            }
+            
+            // Función para actualizar tabla de nuevos detalles
+            function updateNewDetailsTable() {
+                const tbody = $('#newDetailsBody');
+                const card = $('#newDetailsCard');
+                const inputsContainer = $('#newDetailsInputs');
+                
+                // Limpiar tabla y inputs
+                tbody.empty();
+                inputsContainer.empty();
+                
+                // Agregar filas
+                newDetails.forEach((detail, index) => {
+                    const row = `
+                        <tr id="new-detail-${detail.id}">
+                            <td>${index + 1}</td>
+                            <td>
+                                <span class="badge ${detail.shift === 'AM' ? 'bg-primary' : 'bg-warning'}">
+                                    ${detail.shift}
+                                </span>
+                            </td>
+                            <td>${detail.stable_name}</td>
+                            <td>${detail.limit_date ? new Date(detail.limit_date).toLocaleString() : 'No limit'}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-danger btn-sm remove-new-detail" 
+                                        data-detail-id="${detail.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.append(row);
+                    
+                    // Agregar inputs hidden al formulario
+                    inputsContainer.append(`<input type="hidden" name="new_details[${index}][shift]" value="${detail.shift}">`);
+                    inputsContainer.append(`<input type="hidden" name="new_details[${index}][to_stable_id]" value="${detail.to_stable_id}">`);
+                    if (detail.limit_date) {
+                        inputsContainer.append(`<input type="hidden" name="new_details[${index}][limit_date]" value="${detail.limit_date}">`);
+                    }
+                });
+                
+                // Mostrar/ocultar card
+                card.css('display', newDetails.length > 0 ? 'block' : 'none');
+            }
+            
+            // Eliminar detalle existente
+            function deleteExistingDetail(detailId) {
+                // Ocultar fila
+                $(`#detail-row-${detailId}`).hide();
+                
+                // Agregar a la lista de eliminados
+                if (!deletedDetails.includes(detailId)) {
+                    deletedDetails.push(detailId);
+                    hasChanges = true;
+                    
+                    // Agregar input hidden
+                    $('#deletedDetailsInputs').append(
+                        `<input type="hidden" name="deleted_details[]" value="${detailId}">`
+                    );
+                }
+            }
+            
+            // Eliminar nuevo detalle (event delegation)
+            $(document).on('click', '.remove-new-detail', function() {
+                const detailId = $(this).data('detail-id');
+                
+                const index = newDetails.findIndex(detail => detail.id === detailId);
+                if (index !== -1) {
+                    newDetails.splice(index, 1);
+                    hasChanges = true;
+                    updateNewDetailsTable();
+                }
+            });
+            
+            // Función para enviar el formulario de edición
+            function submitEditForm() {
+                const form = $('#editMovementForm');
+                const submitBtn = $('#submitUpdateBtn');
+                const originalHtml = submitBtn.html();
+                
+                // Verificar si hay cambios
+                const notesChanged = $('#notes').val() !== ($('#notes').attr('data-original') || $('#notes').val());
+                const hasNewDetails = newDetails.length > 0;
+                const hasDeletedDetails = deletedDetails.length > 0;
+                
+                if (!hasChanges && !notesChanged && !hasNewDetails && !hasDeletedDetails) {
+                    // No hay cambios, simplemente cerrar el modal
+                    $('#editMovementModal').modal('hide');
+                    return;
+                }
+                
+                // Validar que al menos quede un detalle
+                const totalExisting = $('#existingDetailsBody tr:visible').length;
+                if (totalExisting + newDetails.length === 0) {
+                    Swal.fire('Error', 'The movement must have at least one detail', 'error');
+                    return false;
+                }
+                
+                // Deshabilitar botón y mostrar loading
+                submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Updating...').prop('disabled', true);
+                
+                // Enviar via AJAX
+                $.ajax({
+                    url: form.attr('action'),
+                    method: 'POST',
+                    data: form.serialize(),
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Cerrar modal inmediatamente
+                            $('#editMovementModal').modal('hide');
+                            
+                            // Mostrar SweetAlert2 de éxito después de cerrar el modal
+                            setTimeout(() => {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    html: `Movement <strong>${response.movement_number}</strong> updated successfully`,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    // Recargar la página
+                                    window.location.reload();
+                                });
+                            }, 300);
+                        } else {
+                            Swal.fire('Error!', response.message || 'An error occurred', 'error');
+                            submitBtn.html(originalHtml).prop('disabled', false);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        Swal.fire('Error!', 'An error occurred while updating: ' + error, 'error');
+                        submitBtn.html(originalHtml).prop('disabled', false);
+                    }
+                });
+            }
+            
+            // Cuando el modal se cierra, limpiar datos
+            $('#editMovementModal').on('hidden.bs.modal', function() {
+                newDetails = [];
+                deletedDetails = [];
+                hasChanges = false;
+                $('#newDetailsInputs').empty();
+                $('#deletedDetailsInputs').empty();
+                $('#editMovementContent').empty();
+            });
+        });
+    </script>
+
+
+     {{-- Eliminar Movimiento --}}
+    <script>
+        $(document).ready(function() {
+            // Handle click on delete buttons
+            $(document).on('click', '.delete-movement-btn', function(e) {
+                e.preventDefault();
+                
+                const button = $(this);
+                const movementId = button.data('movement-id');
+                const movementNumber = button.data('movement-number');
+                const horseName = button.data('horse-name');
+                
+                // Confirm with SweetAlert2
+                Swal.fire({
+                    title: 'Delete Movement?',
+                    html: `
+                        <div class="text-center">
+                            <p>Movement: <strong class="text-success">${movementNumber}</strong></p>
+                            <p>Horse: <strong>${horseName}</strong></p>
+                            <div class="alert alert-warning mt-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                This action cannot be undone
+                            </div>
+                        </div>
+                    `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete',
+                    cancelButtonText: 'Cancel',
+                    reverseButtons: true,
+                    width: 500
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading
+                        Swal.fire({
+                            title: 'Deleting...',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        
+                        // Send DELETE request
+                        $.ajax({
+                            url: `/movements/${movementId}`,
+                            type: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(response) {
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: response.message || 'Movement deleted successfully',
+                                    icon: 'success',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                let errorMsg = 'Error deleting movement';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMsg = xhr.responseJSON.message;
+                                }
+                                Swal.fire('Error', errorMsg, 'error');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+    {{-- Script para manejar ejecución de movimientos con SweetAlert2 --}}
+    <script>
+        $(document).ready(function() {
+            // Manejar clic en formularios de ejecutar movimiento
+            $(document).on('submit', 'form[action*="execute"]', function(e) {
+                e.preventDefault();
+                
+                const executeForm = $(this);
+                const executeUrl = executeForm.attr('action');
+                const movementRow = executeForm.closest('tr');
+                const movementNumber = movementRow.find('td:eq(1) strong').text().trim();
+                const horseName = movementRow.find('td:eq(2)').text().trim();
+                
+                // Mostrar SweetAlert2 de confirmación
+                Swal.fire({
+                    title: 'Execute Movement?',
+                    html: `
+                        <div class="text-center">
+                            <p>Are you sure you want to execute this movement?</p>
+                            <div class="card border-light mb-3">
+                                <div class="card-body">
+                                    <p class="mb-1"><strong>Movement:</strong> <span class="text-success">${movementNumber}</span></p>
+                                    <p class="mb-0"><strong>Horse:</strong> ${horseName}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="bi bi-check-circle me-2"></i>Execute',
+                    cancelButtonText: '<i class="fas fa-times me-2"></i>Close',
+                    reverseButtons: true,
+                    width: 500
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Mostrar loading
+                        Swal.fire({
+                            title: 'Executing...',
+                            text: 'Please wait',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        
+                        // Enviar el formulario via AJAX
+                        $.ajax({
+                            url: executeUrl,
+                            method: 'POST',
+                            data: executeForm.serialize(),
+                            success: function(response) {
+                                Swal.fire({
+                                    title: 'Executed!',
+                                    text: response.message || 'Movement executed successfully',
+                                    icon: 'success',
+                                    timer: 2000,
+                                    showConfirmButton: false,
+                                    timerProgressBar: true
+                                }).then(() => {
+                                    // Recargar la página para actualizar la lista
+                                    window.location.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                let errorMsg = 'Error executing movement';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMsg = xhr.responseJSON.message;
+                                }
+                                Swal.fire('Error', errorMsg, 'error');
+                            }
+                        });
+                    }
+                });
+                
+                return false;
+            });
+        });
+    </script>
+
 @endpush

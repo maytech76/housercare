@@ -1,10 +1,7 @@
 @extends('admin.layouts.master')
 
-
 @section('content')
-
 <section>
-
     {{-- Tabla de Sectores--}}
     <div class="row row-sm mt-4 mx-auto">
         <div class="container-fluid py-4">
@@ -18,7 +15,7 @@
             <div class="row" id="sectors-container">
                 @foreach($sectors as $sector)
                 <div class="col-lg-4 col-md-6 mb-4">
-                        <a href="#">
+                    <a href="#">
                         <div class="card sector-card" style="border-left: 5px solid {{ $sector->color ?? '#3490dc' }};">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -38,7 +35,7 @@
                                             <tr>
                                                 <th>Horse</th>
                                                 <th>Location</th>
-                                                <th>Shift</th>
+                                                <th>Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -57,29 +54,32 @@
                                                         @endif
                                                         <div>
                                                             <div class="fw-bold">{{ $horse->name }}</div>
-                                                            <small class="text-muted">{{ $horse->breed }}</small>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td class="stable-info">{{ $horse->stable->name ?? 'N/A' }}</td>
-                                                {{-- <td>
+
+                                                {{-- Mostrar el status del movimiento --}}
+                                                <td class="stable-info">
                                                     @php
-                                                        $today = now()->format('Y-m-d');
-                                                        $movement = $horse->movementDetails()
-                                                            ->whereDate('limit_date', $today)
-                                                            ->where('is_executed', false)
-                                                            ->first();
+                                                        // Buscar el movimiento del caballo actual
+                                                        $movement = $movements[$horse->id] ?? null;
+                                                        $status = $movement->status ?? 'NO MOVEMENT';
+                                                        
+                                                        // Mapear clases de color según el status
+                                                        $textClass = match($status) {
+                                                            'ASSIGNED' => 'text-warning fw-light',
+                                                            'PARTIALLY' => 'text-info fw-light',
+                                                            'EXECUTED' => 'text-success fw-light',
+                                                            default => 'text-secondary fw-light'
+                                                        };
+                                                        
                                                     @endphp
                                                     
-                                                    @if($movement)
-                                                        <span class="badge shift-badge 
-                                                            {{ $movement->shift == 'AM' ? 'bg-warning text-dark' : 'bg-info' }}">
-                                                            {{ $movement->shift == 'AM' ? 'Mañana' : 'Tarde' }}
-                                                        </span>
-                                                    @else
-                                                        <span class="badge shift-badge bg-secondary">Sin turno</span>
-                                                    @endif
-                                                </td> --}}
+                                                    <span class="{{ $textClass }}">
+                                                        {{ $status }}
+                                                    </span>
+                                                </td>
                                             </tr>
                                             @empty
                                             <tr>
@@ -94,7 +94,7 @@
                             </div>
                         </div>
                     </a>
-                    </div>
+                </div>
                 @endforeach
             </div>
     
@@ -105,17 +105,12 @@
                 <p class="text-muted">Configure the sectors in the system.</p>
             </div>
             @endif
+        </div>
     </div>
-    
-       
-   
-    </div>
-
 </section>
 @endsection
 
 @push('scripts')
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // Actualizar automáticamente cada 5 minutos
@@ -143,5 +138,4 @@
         } : {r: 52, g: 144, b: 220};
     }
 </script>
-    
 @endpush

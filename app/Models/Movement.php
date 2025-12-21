@@ -100,8 +100,13 @@ class Movement extends Model
         return $this->hasMany(MovementDetail::class);
     }
 
-    public function getStatusBadgeAttribute(): string
-    {
+    public function movement(){
+
+        return $this->belongsTo(Movement::class);
+    }
+
+    public function getStatusBadgeAttribute(): string{
+
         $statuses = [
             'ASSIGNED' => 'text-warning',
             'PARTIALLY' => 'text-info',
@@ -112,8 +117,8 @@ class Movement extends Model
         return $statuses[$this->status] ?? 'badge badge-secondary';
     }
 
-    public function execute(int $executorId): bool
-    {
+    public function execute(int $executorId): bool{
+
         try {
             Log::info('Iniciando ejecución de movimiento', [
                 'movimiento_id' => $this->id,

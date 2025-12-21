@@ -76,6 +76,16 @@ class Horse extends Model
         return $this->hasMany(HorseMovement::class)->orderBy('created_at', 'desc');
     }
 
+    public function latestMovement()
+    {
+        return $this->belongsTo(Movement::class);
+    }
+
+    public function getLastMovementAttribute(){
+
+        return $this->movements()->latest()->first();
+    }
+
     public function currentStable()
     {
         return $this->belongsTo(Stable::class, 'stable_id');
