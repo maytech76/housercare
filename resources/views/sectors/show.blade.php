@@ -53,7 +53,7 @@
                                                             style="width: 30px; height: 30px;"></div>
                                                         @endif
                                                         <div>
-                                                            <div class="fw-bold">{{ $horse->name }}</div>
+                                                            <div class="fw-light">{{ $horse->name }}</div>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -82,11 +82,13 @@
                                                 </td>
                                             </tr>
                                             @empty
+
                                             <tr>
                                                 <td colspan="3" class="text-center text-muted py-3">
-                                                    No hay caballos en este sector
+                                                    There are no horses in this sector
                                                 </td>
                                             </tr>
+
                                             @endforelse
                                         </tbody>
                                     </table>
