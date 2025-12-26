@@ -15,7 +15,7 @@
             <div class="row" id="sectors-container">
                 @foreach($sectors as $sector)
                 <div class="col-lg-4 col-md-6 mb-4">
-                    <a href="#">
+                    <a href="{{ route('sectors.detail', $sector->id) }}">
                         <div class="card sector-card" style="border-left: 5px solid {{ $sector->color ?? '#3490dc' }};">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-3">

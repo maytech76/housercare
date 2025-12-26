@@ -95,6 +95,11 @@ class Movement extends Model
         return $this->belongsTo(Horse::class);
     }
 
+    public function toStable(): BelongsTo
+    {
+        return $this->belongsTo(Stable::class, 'to_stable_id');
+    }
+
     public function details(): HasMany
     {
         return $this->hasMany(MovementDetail::class);
@@ -162,5 +167,22 @@ class Movement extends Model
     public function canExecute(): bool
     {
         return $this->status === 'ASSIGNED' || $this->status === 'PARTIALLY';
+    }
+
+    /**
+     * Obtener el detalle por turno
+     */
+    public function getDetailByShift(string $shift): ?MovementDetail
+    {
+        return $this->details->firstWhere('shift', $shift);
+    }
+
+    /**
+     * Obtener el stable destino por turno
+     */
+    public function getToStableByShift(string $shift): ?Stable
+    {
+        $detail = $this->getDetailByShift($shift);
+        return $detail ? $detail->toStable : null;
     }
 }

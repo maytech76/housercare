@@ -50,13 +50,20 @@ class MovementDetail extends Model
         return $this->belongsTo(Stable::class, 'from_stable_id');
     }
 
+    // MANTEN este método con el nombre correcto
+    public function toStable(): BelongsTo
+    {
+        return $this->belongsTo(Stable::class, 'to_stable_id');
+    }
+
+  
+
     public function executor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'executed_by');
     }
 
-    public function execute(int $executorId): bool
-    {
+    public function execute(int $executorId): bool{
         try {
             if ($this->is_executed) {
                 Log::warning('Intento de ejecutar detalle ya ejecutado', [
@@ -109,8 +116,8 @@ class MovementDetail extends Model
     /**
      * Actualizar estado del movimiento basado en los detalles ejecutados
      */
-    private function updateMovementStatus(): void
-    {
+    private function updateMovementStatus(): void{
+
         $movement = $this->movement;
         $totalDetails = $movement->details()->count();
         $executedDetails = $movement->details()->where('is_executed', true)->count();
@@ -127,8 +134,8 @@ class MovementDetail extends Model
         }
     }
 
-    private function createHistory(int $fromStableId, int $executorId): void
-    {
+    private function createHistory(int $fromStableId, int $executorId): void{
+
         try {
             // Verificar si la tabla de historial existe antes de insertar
             if (!Schema::hasTable('movement_histories')) {
@@ -179,8 +186,8 @@ class MovementDetail extends Model
     /**
      * Obtener el estado del detalle
      */
-    public function getDetailStatusAttribute(): string
-    {
+    public function getDetailStatusAttribute(): string{
+
         if ($this->is_executed) {
             return 'Ejecutado';
         } elseif ($this->is_expired) {

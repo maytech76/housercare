@@ -133,10 +133,15 @@ Route::get('/test-time', function() {
 
 /* ------ FINAL RUTAS CLIENTES ------- */
 
+Route::post('/movements/update-status', [MovementController::class, 'updateStatus'])
+    ->name('movements.update-status')
+    ->middleware('auth');
 
 Route::get('/', function () {
     return view('welcome');
     });
+
+    
 
 Route::middleware([
         'auth:sanctum',
@@ -412,19 +417,14 @@ Route::middleware([
         Route::get('/horse-movements/history', [HorseMovementController::class, 'showHorseMovements'])->name('horse-movements.history');
         Route::get('/horse-movements/statistics', [HorseMovementController::class, 'statistics'])->name('horse-movements.statistics');
 
-        // Rutas para Sectores
-        Route::prefix('sectors')->group(function () {
-           Route::get('/show', [SectorController::class, 'showSectors'])->name('sectors.show');
-            Route::get('/{sector}/horses', [SectorController::class, 'getSectorHorses'])->name('sectors.horses');
-        });
-
-
-        // Rutas para Movimientos
-        Route::prefix('movements')->group(function () {
+         // Rutas para Movimientos
+         Route::prefix('movements')->group(function () {
             Route::get('/', [MovementController::class, 'index'])->name('movements.index');
             Route::get('/create', [MovementController::class, 'create'])->name('movements.create');
             Route::post('/', [MovementController::class, 'store'])->name('movements.store');
             Route::get('/{movement}', [MovementController::class, 'show'])->name('movements.show');
+           /*  Route::post('/update-status', [MovementController::class, 'updateStatus'])->name('movements.update-status'); */
+
             Route::get('/{movement}/edit', [MovementController::class, 'edit'])->name('movements.edit');
             Route::put('/{movement}', [MovementController::class, 'update'])->name('movements.update');
             Route::delete('/{movement}', [MovementController::class, 'destroy'])->name('movements.destroy');
@@ -434,6 +434,19 @@ Route::middleware([
             Route::post('/details/{detail}/execute', [MovementController::class, 'executeDetail'])
                 ->name('movements.details.execute');
         });
+
+
+        // Rutas para Sectores
+        Route::prefix('sectors')->group(function () {
+
+            Route::get('/show', [SectorController::class, 'showSectors'])->name('sectors.show');
+            Route::get('/{sector}/horses', [SectorController::class, 'getSectorHorses'])->name('sectors.horses');
+            Route::get('/{sector}/detail', [SectorController::class, 'detail'])->name('sectors.detail');
+
+        });
+
+
+       
 
         // Horse Special Conditions
         Route::get('/horse-conditions', [HorseSpecialConditionController::class, 'index']);
