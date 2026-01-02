@@ -20,7 +20,8 @@
                 <div class="col-lg-4 col-xl-4 mb-4">
                     <div class="card horse-card">
                         <div class="card-body">
-                            {{-- Cabecera con foto y nombre --}}
+                            
+                            {{-- Cabecera con foto, nombre, Id --}}
                             <div class="d-flex align-items-center mb-4">
                                 <div class="flex-shrink-0">
                                     @if($horse->photo)
@@ -66,7 +67,7 @@
                                             // Buscar detalles por turno
                                             $amDetail = null;
                                             $pmDetail = null;
-                                            $currentMovementStatus = 'NO MOVE';
+                                            $currentMovementStatus = 'DO NOT MOVE';
                                             
                                             if ($horseMovements->isNotEmpty()) {
                                                 // Para cada movimiento, buscar sus detalles
@@ -80,7 +81,7 @@
                                                         $pmDetail = $movement->details->firstWhere('shift', 'PM');
                                                     }
                                                     // Usar el status del primer movimiento encontrado
-                                                    if ($currentMovementStatus === 'NO MOVE') {
+                                                    if ($currentMovementStatus === 'DO NOT MOVE') {
                                                         $currentMovementStatus = $movement->status;
                                                     }
                                                 }
@@ -109,12 +110,12 @@
                                                         data-movement-id="{{ $amDetail->movement_id }}"
                                                         data-shift="AM"
                                                         data-horse-id="{{ $horse->id }}"
-                                                        {{ $amDetail->is_executed ? 'checked' : '' }}
+                                                        {{ $amDetail->is_executed ? 'checked disabled' : '' }}
                                                         id="switch-am-{{ $horse->id }}">
                                                     <label class="form-check-label" for="switch-am-{{ $horse->id }}"></label>
                                                 </div>
                                                 @else
-                                                    <span class="badge bg-secondary">N/A</span>
+                                                    <span class="text-secondary tex-center"></span>
                                                 @endif
                                             </td>
 
@@ -129,7 +130,7 @@
                                                 @if($pmDetail)
                                                     {{ $pmDetail->toStable->name ?? '' }}
                                                 @else
-                                                    <span class="text-muted">No move</span>
+                                                    <span class="text-muted">DO NOT MOVE</span>
                                                 @endif
                                             </td>
                                             <td style="text-align: center;">
@@ -137,16 +138,16 @@
                                                 <div class="form-check form-switch d-inline-block my-2" style="transform: scale(1.5); transform-origin: right center;">
                                                     <input type="checkbox" 
                                                         class="form-check-input movement-switch"
-                                                        data-detail-id="{{ $amDetail->id }}"
-                                                        data-movement-id="{{ $amDetail->movement_id }}"
-                                                        data-shift="AM"
+                                                        data-detail-id="{{ $pmDetail->id }}" {{-- CORRECCIÓN: $pmDetail, no $amDetail --}}
+                                                        data-movement-id="{{ $pmDetail->movement_id }}"
+                                                        data-shift="PM" {{-- CORRECCIÓN: PM, no AM --}}
                                                         data-horse-id="{{ $horse->id }}"
-                                                        {{ $amDetail->is_executed ? 'checked' : '' }}
-                                                        id="switch-am-{{ $horse->id }}">
-                                                    <label class="form-check-label" for="switch-am-{{ $horse->id }}"></label>
+                                                        {{ $pmDetail->is_executed ? 'checked disabled' : '' }} {{-- CORRECCIÓN: $pmDetail --}}
+                                                        id="switch-pm-{{ $horse->id }}">
+                                                    <label class="form-check-label" for="switch-pm-{{ $horse->id }}"></label>
                                                 </div>
                                                 @else
-                                                    <span class="badge bg-secondary">N/A</span>
+                                                    <span class="text-secondary text-center"></span>
                                                 @endif
                                             </td>
                                         </tr>
@@ -208,10 +209,19 @@
         height: 1.8em;
         width: 3em;
     }
+
+    /* Estilo para checkboxes deshabilitados */
+    .form-check-input:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
     </style>
 @endpush
 
 @push('scripts')
+<!-- Incluir SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     $(document).ready(function() {
         const updateStatusUrl = '/movements/update-status';
@@ -220,7 +230,10 @@
         console.log('URL AJAX:', updateStatusUrl);
         console.log('Switches activos:', $('.movement-switch').length);
         
-        $('.movement-switch').change(function() {
+        // Deshabilitar los switches que ya están ejecutados
+        $('.movement-switch:checked').prop('disabled', true);
+        
+        $('.movement-switch').not(':disabled').change(function() {
             const detailId = $(this).data('detail-id');
             const movementId = $(this).data('movement-id');
             const shift = $(this).data('shift');
@@ -240,7 +253,7 @@
             // Validación
             if (!detailId || isNaN(detailId)) {
                 console.error('❌ ID de detalle inválido');
-                showToast('Error', 'Invalid detail ID', 'error');
+                showSweetAlert('Error', 'Invalid detail ID', 'error');
                 $(this).prop('checked', !isChecked);
                 return;
             }
@@ -298,16 +311,28 @@
                         // Actualizar texto
                         statusBadge.text(response.status);
                         
-                        // Si se ejecutó, mantener el switch checked
+                        // Si se ejecutó (is_executed = true)
                         if (response.data && response.data.detail_executed) {
+                            // Deshabilitar el switch permanentemente
+                            switchElement.prop('disabled', true);
                             switchElement.prop('checked', true);
+                            
+                            // Mostrar notificación SweetAlert2
+                            showSweetAlert(
+                                'SHIFT EXECUTED',
+                                `Shift ${shift} has been successfully executed.`,
+                                'success'
+                            );
+                        } else {
+                            // Si se desmarcó, habilitar el switch nuevamente
+                            switchElement.prop('disabled', false);
+                            showToast('Success', response.message, 'success');
                         }
-                        
-                        showToast('Success', response.message, 'success');
                     } else {
                         console.error('❌ Respuesta con error:', response);
+                        switchElement.prop('disabled', false);
                         switchElement.prop('checked', !isChecked);
-                        showToast('Error', response.message, 'error');
+                        showSweetAlert('Error', response.message, 'error');
                     }
                 },
                 error: function(xhr, status, error) {
@@ -315,6 +340,10 @@
                     console.log('Status:', xhr.status);
                     console.log('Status Text:', xhr.statusText);
                     console.log('Error:', error);
+                    
+                    // Habilitar el switch nuevamente
+                    switchElement.prop('disabled', false);
+                    switchElement.prop('checked', !isChecked);
                     
                     try {
                         const errorResponse = JSON.parse(xhr.responseText);
@@ -331,26 +360,50 @@
                                 });
                             });
                             
-                            showToast('Error de Validación', errorMessages.join(', '), 'error');
+                            showSweetAlert('Validation Error', errorMessages.join(', '), 'error');
                         } else if (errorResponse.message) {
-                            showToast('Error', errorResponse.message, 'error');
+                            showSweetAlert('Error', errorResponse.message, 'error');
                         }
                     } catch (e) {
                         console.log('No se pudo parsear respuesta:', xhr.responseText);
                         console.log('Respuesta cruda:', xhr.responseText);
-                        showToast('Error', 'Error del servidor: ' + xhr.statusText, 'error');
+                        showSweetAlert('Server Error', 'Error del servidor: ' + xhr.statusText, 'error');
                     }
                     console.groupEnd();
-                    
-                    // Revertir el switch
-                    switchElement.prop('checked', !isChecked);
-                },
-                complete: function() {
-                    switchElement.prop('disabled', false);
                 }
             });
         });
         
+        // Función para mostrar SweetAlert2
+        function showSweetAlert(title, message, type) {
+            Swal.fire({
+                title: title,
+                text: message,
+                icon: type,
+                showConfirmButton: false, // ¡IMPORTANTE: No mostrar botón!
+                timer: type === 'success' ? 1500 : 1500, // Auto-cerrar
+                timerProgressBar: true,
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp'
+                },
+                // Opcional: Personalizar la posición
+                position: 'center',
+                toast: true, // Modo toast (más pequeño)
+                background: type === 'success' ? '#28a745' : '#dc3545',
+                color: '#fff',
+                // Opcional: Personalizar el icono
+                iconColor: type === 'success' ? '#fff' : '#fff',
+                // Opcional: Añadir custom class
+                customClass: {
+                    popup: 'sweet-alert-custom'
+                }
+            });
+        }
+        
+        // Función para mostrar Toast (mantener compatibilidad)
         function showToast(title, message, type) {
             const toastId = 'toast-' + Date.now();
             const toast = `
@@ -373,7 +426,7 @@
             
             toastElement.toast({
                 autohide: true,
-                delay: 5000
+                delay: 3000
             });
             
             toastElement.toast('show');
@@ -387,14 +440,19 @@
         console.log('=== Switches encontrados ===');
         $('.movement-switch').each(function(i) {
             const $el = $(this);
+            const isDisabled = $el.prop('disabled');
+            const isChecked = $el.is(':checked');
             console.log(`Switch ${i}:`, {
                 id: $el.attr('id'),
                 detailId: $el.data('detail-id'),
                 movementId: $el.data('movement-id'),
                 horseId: $el.data('horse-id'),
                 shift: $el.data('shift'),
-                checked: $el.is(':checked'),
-                dataAttrs: $el.data()
+                checked: isChecked,
+                disabled: isDisabled,
+                status: isChecked && isDisabled ? 'EXECUTED (LOCKED)' : 
+                        isChecked ? 'CHECKED' : 
+                        isDisabled ? 'DISABLED' : 'ACTIVE'
             });
         });
     });

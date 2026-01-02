@@ -37,8 +37,8 @@ class Sector extends Model
         return $this->hasManyThrough(Horse::class, Stable::class);
     }
 
-    // aplicable para el modulo Movements
 
+    // aplicable para el modulo Movements
     public function getActiveStablesAttribute()
     {
         return $this->stables()->where('status', 1)->get();

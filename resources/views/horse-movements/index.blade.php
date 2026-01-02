@@ -10,65 +10,7 @@
             <!-- Topbar -->
             <div class="topbar mb-4 rounded">
                 <div class="d-flex justify-content-between align-items-center px-3">
-                    <h5 class="m-0">Knight Movements</h5>
-                </div>
-            </div>
-
-            <!-- Filtros -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="m-0 font-weight-bold text-primary">Search Filters</h6>
-                </div>
-                <div class="card-body">
-                    <form method="GET"{{--  action="{{ route('horse-movements.index') }}" --}}>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <label class="form-label">Horse</label>
-                                <select class="form-select" name="horse_id">
-                                    <option value="">All the horses</option>
-                                    @foreach($horses as $horse)
-                                        <option value="{{ $horse->id }}" {{ request('horse_id') == $horse->id ? 'selected' : '' }}>
-                                            {{ $horse->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Origin</label>
-                                <select class="form-select" name="from_stable_id">
-                                    <option value="">Select Origin</option>
-                                    @foreach($stables as $stable)
-                                        <option value="{{ $stable->id }}" {{ request('from_stable_id') == $stable->id ? 'selected' : '' }}>
-                                            {{ $stable->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Destination</label>
-                                <select class="form-select" name="to_stable_id">
-                                    <option value="">Select Destination</option>
-                                    @foreach($stables as $stable)
-                                        <option value="{{ $stable->id }}" {{ request('to_stable_id') == $stable->id ? 'selected' : '' }}>
-                                            {{ $stable->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Date</label>
-                                <input type="date" class="form-control" name="date" value="{{ request('date') }}">
-                            </div>
-                            <div class="col-md-12 mt-3">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-funnel"></i> Apply Filters
-                                </button>
-                                {{-- <a href="{{ route('horse-movements.index') }}" class="btn btn-outline-secondary"> --}}
-                                    <i class="bi bi-arrow-repeat"></i> Limpiar
-                                </a>
-                            </div>
-                        </div>
-                    </form>
+                    <h5 class="m-0">Direct Movement</h5>
                 </div>
             </div>
 

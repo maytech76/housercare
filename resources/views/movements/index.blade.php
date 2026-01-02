@@ -108,7 +108,7 @@
                                                         <i class="bi bi-check-circle"></i>
                                                     </button>
                                                 </form>
-                                                
+
                                                 @endif
                                             </div>
 
@@ -345,9 +345,9 @@
     <div class="modal fade" id="editMovementModal" tabindex="-1" aria-labelledby="editMovementModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-warning-gradient">
                     <h5 class="modal-title" id="editMovementModalLabel">
-                        <i class="fas fa-edit me-2"></i>Editttt Movement
+                        <i class="fas fa-edit me-2"></i>Edit Movement
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -828,7 +828,7 @@
                         <!-- Detalles del movimiento -->
                         <div class="card">
                             <div class="card-header border border-secondary">
-                                <h5 class="mb-0">Detalles de Movimiento</h5>
+                                <h5 class="mb-0">Movement Details</h5>
                             </div>
                             <div class="card-body border border-secondary">
                                 ${movement.details && movement.details.length > 0 ? `
@@ -840,9 +840,9 @@
                                                     <th>Shift</th>
                                                     <th>Sector</th>
                                                     <th>Location</th>
-                                                    <th>Límit Date</th>
+                                                    <th>Limit Date</th>
                                                     <th>Status</th>
-                                                    <th>Ejecutado</th>
+                                                    <th>Executed</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="border border-secondary">
@@ -902,6 +902,7 @@
                 `;
             });
         });
+
     </script>
 
 
@@ -1324,7 +1325,7 @@
                     html: `
                         <div class="text-center">
                             <p>Are you sure you want to execute this movement?</p>
-                            <div class="card border-light mb-3">
+                            <div class="card border-light mb-3 bg-white">
                                 <div class="card-body">
                                     <p class="mb-1"><strong>Movement:</strong> <span class="text-success">${movementNumber}</span></p>
                                     <p class="mb-0"><strong>Horse:</strong> ${horseName}</p>
@@ -1335,7 +1336,7 @@
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#28a745',
-                    cancelButtonColor: '#6c757d',
+                    cancelButtonColor: '#C82909',
                     confirmButtonText: '<i class="bi bi-check-circle me-2"></i>Execute',
                     cancelButtonText: '<i class="fas fa-times me-2"></i>Close',
                     reverseButtons: true,

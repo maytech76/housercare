@@ -28,108 +28,112 @@
                                {{--  <div class="slide-left disabled" id="slide-left"><svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24" viewBox="0 0 24 24"><path d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z"/></svg></div> --}}
 
                                 {{-- Menu Administrador --}}
-                                @if (Auth::user()->rol_id == 1)
+                                @if (Auth::user()->rol_id == 2)
+
                                 <ul class="side-menu">
 
                                     <li class="side-item side-item-category mt-4">Miscellaneous</li>
 
                                         {{-- Categorias --}}
                                         <li class="slide">
-                                            <a class="side-menu__item" href="{{route('categories.index')}} "><svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" viewBox="0 0 24 24" ><path d="M0 0h24v24H0V0z" fill="none"/><path d="M5 5h4v6H5zm10 8h4v6h-4zM5 17h4v2H5zM15 5h4v2h-4z" opacity=".3"/><path d="M3 13h8V3H3v10zm2-8h4v6H5V5zm8 16h8V11h-8v10zm2-8h4v6h-4v-6zM13 3v6h8V3h-8zm6 4h-4V5h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2z"/></svg><span class="side-menu__label">Categories</span></a>
+                                            <a class="side-menu__item" href="{{route('categories.index')}} "><i class="fa fa-bars"></i><span class="mx-3 side-menu__label">Categories</span></a>
                                         </li>
 
                                         {{-- Store --}}
                                         <li class="slide">
-                                            <a class="side-menu__item" href="{{route('stores.index')}} "><svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" viewBox="0 0 24 24" ><path d="M0 0h24v24H0V0z" fill="none"/><path d="M5 5h4v6H5zm10 8h4v6h-4zM5 17h4v2H5zM15 5h4v2h-4z" opacity=".3"/><path d="M3 13h8V3H3v10zm2-8h4v6H5V5zm8 16h8V11h-8v10zm2-8h4v6h-4v-6zM13 3v6h8V3h-8zm6 4h-4V5h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2z"/></svg><span class="side-menu__label">Stores</span></a>
+                                            <a class="side-menu__item" href="{{route('stores.index')}} "><i class="fa fa-industry"></i><span class="mx-3 side-menu__label">Stores</span></a>
                                         </li>
 
                                         {{-- Units --}}
                                         <li class="slide">
-                                            <a class="side-menu__item" href="{{route('units.index')}} "><svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" viewBox="0 0 24 24" ><path d="M0 0h24v24H0V0z" fill="none"/><path d="M5 5h4v6H5zm10 8h4v6h-4zM5 17h4v2H5zM15 5h4v2h-4z" opacity=".3"/><path d="M3 13h8V3H3v10zm2-8h4v6H5V5zm8 16h8V11h-8v10zm2-8h4v6h-4v-6zM13 3v6h8V3h-8zm6 4h-4V5h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2z"/></svg><span class="side-menu__label">Units</span></a>
+                                            <a class="side-menu__item" href="{{route('units.index')}} "><i class="fa fa-puzzle-piece"></i><span class="mx-3 side-menu__label">Units</span></a>
                                         </li>
 
 
                                         {{-- Productos --}}
                                         <li class="slide">
-                                            <a class="side-menu__item" href="{{route('products.index')}} "><svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" viewBox="0 0 24 24" ><path d="M0 0h24v24H0V0z" fill="none"/><path d="M5 5h4v6H5zm10 8h4v6h-4zM5 17h4v2H5zM15 5h4v2h-4z" opacity=".3"/><path d="M3 13h8V3H3v10zm2-8h4v6H5V5zm8 16h8V11h-8v10zm2-8h4v6h-4v-6zM13 3v6h8V3h-8zm6 4h-4V5h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2z"/></svg><span class="side-menu__label">Products - Services</span></a>
+                                            <a class="side-menu__item" href="{{route('products.index')}} "><i class="fa fa-shopping-basket"></i><span class="mx-3 side-menu__label">Products</span></a>
                                         </li>
 
                                         
 
-                                        {{-- Location--}}
+                                        {{-- Sectors--}}
                                         <li class="slide">
-                                            <a class="side-menu__item" href="{{route('sectors.index')}} "><svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" viewBox="0 0 24 24" ><path d="M0 0h24v24H0V0z" fill="none"/><path d="M5 5h4v6H5zm10 8h4v6h-4zM5 17h4v2H5zM15 5h4v2h-4z" opacity=".3"/><path d="M3 13h8V3H3v10zm2-8h4v6H5V5zm8 16h8V11h-8v10zm2-8h4v6h-4v-6zM13 3v6h8V3h-8zm6 4h-4V5h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2z"/></svg><span class="side-menu__label">Sectors</span></a>
+                                            <a class="side-menu__item" href="{{route('sectors.index')}} "><i class="far fa-map"></i><span class="mx-3 side-menu__label">Sectors</span></a>
                                         </li>
 
                                         {{-- Location--}}
                                         <li class="slide">
-                                            <a class="side-menu__item" href="{{route('stables.index')}} "><svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" viewBox="0 0 24 24" ><path d="M0 0h24v24H0V0z" fill="none"/><path d="M5 5h4v6H5zm10 8h4v6h-4zM5 17h4v2H5zM15 5h4v2h-4z" opacity=".3"/><path d="M3 13h8V3H3v10zm2-8h4v6H5V5zm8 16h8V11h-8v10zm2-8h4v6h-4v-6zM13 3v6h8V3h-8zm6 4h-4V5h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2z"/></svg><span class="side-menu__label">Location</span></a>
+                                            <a class="side-menu__item" href="{{route('stables.index')}} "><i class="fa fa-map-pin"></i><span class="mx-3 side-menu__label">Location</span></a>
                                         </li>
                                        
                                         {{-- Caballo --}}
                                         <li class="slide">
-                                            <a class="side-menu__item"  href="{{route('horses.index')}}"><svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" viewBox="0 0 24 24" ><path d="M0 0h24v24H0V0z" fill="none"/><path d="M5 5h4v6H5zm10 8h4v6h-4zM5 17h4v2H5zM15 5h4v2h-4z" opacity=".3"/><path d="M3 13h8V3H3v10zm2-8h4v6H5V5zm8 16h8V11h-8v10zm2-8h4v6h-4v-6zM13 3v6h8V3h-8zm6 4h-4V5h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2z"/></svg><span class="side-menu__label">Horses</span></a>
+                                            <a class="side-menu__item"  href="{{route('horses.index')}}"><i class="far fa-star"></i><span class="mx-3 side-menu__label">Horses</span></a>
                                         </li>
 
                                         {{-- Seleccion de Procesos--}}
                                         <li class="slide">
-                                            <a class="side-menu__item"  href="{{route('horses.selection')}}"><svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" viewBox="0 0 24 24" ><path d="M0 0h24v24H0V0z" fill="none"/><path d="M5 5h4v6H5zm10 8h4v6h-4zM5 17h4v2H5zM15 5h4v2h-4z" opacity=".3"/><path d="M3 13h8V3H3v10zm2-8h4v6H5V5zm8 16h8V11h-8v10zm2-8h4v6h-4v-6zM13 3v6h8V3h-8zm6 4h-4V5h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2z"/></svg><span class="side-menu__label">Select Process</span></a>
+                                            <a class="side-menu__item"  href="{{route('horses.selection')}}"><i class="fa fa-cogs"></i><span class=" mx-3 side-menu__label">Select Process</span></a>
                                         </li>
+                                    </li>
 
                                        	
 
                                     <li class="side-item side-item-category">Administrative</li>
+                                                
+                                        <li class="slide">
+                                            <a class="side-menu__item" href="{{route('movements.index')}} "><i class="fas fa-external-link-alt"></i><span class="mx-3 side-menu__label"> Assign Movements</span></a>
+                                        </li>
 
                                         <li class="slide">
-                                            <a class="side-menu__item" data-bs-toggle="slide" href="javascript:void(0);"><span class="side-menu__label">Procesos</span><i class="angle fe fe-chevron-down"></i></a>
-                                            <ul class="slide-menu">
-                                                {{-- Sectores --}}
-                                               {{--  <li class="slide">
-                                                    <a class="slide-item" href="{{route('sectors.index')}} "><span class="side-menu__label">Sectors</span></a>
-                                                </li> --}}
+                                            <a class="side-menu__item" href="{{route('horse-movements')}} "><i class="fa fa-gavel"></i><span class="mx-3 side-menu__label">Direct Movement</span></a>
+                                        </li>
 
-                                                <li class="slide">
-                                                    <a class="slide-item" href="{{route('movements.index')}} "><span class="side-menu__label">Movements</span></a>
-                                                </li>
-                                                <li class="slide">
-                                                    <a class="slide-item" href="{{route('horse-movements')}} "><span class="side-menu__label">Movements</span></a>
-                                                </li>
+                                        <li class="slide">
+                                            <a class="side-menu__item" href="{{route('inventory-controls.index')}}"><i class="fa fa-database"></i><span class="mx-3 side-menu__label">Op inventory</span></a>
+                                        </li>
 
-                                                <li><a class="slide-item" href="{{route('inventory-controls.index')}}">Op inventory</a></li>
-                                                <li><a class="slide-item" href="{{route('supplies.index')}}">Suministros</a></li>
-                                                <li><a class="slide-item" href="{{route('services.index')}} ">Services</a></li>
-                                                <li><a class="slide-item" href="{{route('assignments.index')}} ">Assignments</a></li>
+                                        <li class="slide">
+                                            <a class="side-menu__item" href="{{route('supplies.index')}}"><i class="fas fa-utensils"></i><span class="mx-3 side-menu__label">Supplies</span></a>
+                                        </li>
 
-                                            </ul>
-                                        </li>			
+                                        <li class="slide">
+                                            <a class="side-menu__item" href="{{route('services.index')}} "><i class="fa fa-sitemap"></i><span class="mx-3 side-menu__label">Services Esp</span></a>
+                                        </li>
+
+                                        <li class="slide">
+                                            <a class="side-menu__item" href="{{route('assignments.index')}} "><i class="fa fa-check"></i><span class="mx-3 side-menu__label">Assignments Esp</span></a>
+                                        </li>
+
+                                               
+                                        		
                                                 
-                                </ul>
-                                @endif
-
-                                {{-- Menu Asesor --}}
-                                @if (Auth::user()->rol_id == 2)
-                                <ul class="side-menu">
-                                    <li class="side-item side-item-category">Asesor</li>
-                                    <li class="slide">
-                                        <a class="side-menu__item" href="# "><svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" viewBox="0 0 24 24" ><path d="M0 0h24v24H0V0z" fill="none"/><path d="M5 5h4v6H5zm10 8h4v6h-4zM5 17h4v2H5zM15 5h4v2h-4z" opacity=".3"/><path d="M3 13h8V3H3v10zm2-8h4v6H5V5zm8 16h8V11h-8v10zm2-8h4v6h-4v-6zM13 3v6h8V3h-8zm6 4h-4V5h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2z"/></svg><span class="side-menu__label">Calendario</span></a>
                                     </li>
+                                    
                                 </ul>
+
                                 @endif
 
+                                {{-- Menu Manager --}}
                                 @if (Auth::user()->rol_id == 3)
 
-                                 <ul class="side-menu">
-                                    <li class="side-item side-item-category">Cliente</li>
-                                        
-                                        <li class="slide mb-2">
-                                            <a class="side-menu__item" href="{{route('cliente.reservas')}} "><svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" viewBox="0 0 24 24" ><path d="M0 0h24v24H0V0z" fill="none"/><path d="M5 5h4v6H5zm10 8h4v6h-4zM5 17h4v2H5zM15 5h4v2h-4z" opacity=".3"/><path d="M3 13h8V3H3v10zm2-8h4v6H5V5zm8 16h8V11h-8v10zm2-8h4v6h-4v-6zM13 3v6h8V3h-8zm6 4h-4V5h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2z"/></svg><span class="side-menu__label">Reserva</span></a>
-                                        </li>
-                                        <li class="slide mb-2">
-                                            <a class="side-menu__item" href="{{route('cliente.calendario')}} "><svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" viewBox="0 0 24 24" ><path d="M0 0h24v24H0V0z" fill="none"/><path d="M5 5h4v6H5zm10 8h4v6h-4zM5 17h4v2H5zM15 5h4v2h-4z" opacity=".3"/><path d="M3 13h8V3H3v10zm2-8h4v6H5V5zm8 16h8V11h-8v10zm2-8h4v6h-4v-6zM13 3v6h8V3h-8zm6 4h-4V5h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2z"/></svg><span class="side-menu__label">Calendario</span></a>
-                                        </li>
-                                       
+                                <li class="side-item side-item-category mt-4">Manager</li>
+
+                                    {{-- Seleccion de Procesos--}}
+                                    <li class="slide">
+                                        <a class="side-menu__item"  href="{{route('horses.selection')}}"><i class="fa fa-cogs"></i><span class=" mx-3 side-menu__label">Select Process</span></a>
                                     </li>
-                                 </ul>
+
+
+                                </li>
+
+                                @endif
+
+                                {{-- Menu Property --}}
+                                @if (Auth::user()->rol_id == 4)
+
+                                 
                                     
                                 @endif
 

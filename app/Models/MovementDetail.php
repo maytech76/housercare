@@ -189,11 +189,11 @@ class MovementDetail extends Model
     public function getDetailStatusAttribute(): string{
 
         if ($this->is_executed) {
-            return 'Ejecutado';
+            return 'Executed';
         } elseif ($this->is_expired) {
-            return 'Vencido';
+            return 'Expired';
         } else {
-            return 'Pendiente';
+            return 'Earring';
         }
     }
 }

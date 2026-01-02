@@ -48,7 +48,7 @@
 
         <!-- Formulario para agregar nuevos detalles -->
         <div class="card mb-4 border-primary">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header text-white">
                 <h6 class="m-0"><i class="fas fa-plus-circle"></i> Add New Movement Details</h6>
             </div>
             <div class="card-body">
@@ -91,8 +91,8 @@
         </div>
 
         <!-- Tabla de detalles existentes -->
-        <div class="card mb-3">
-            <div class="card-header bg-warning text-white">
+        <div class="card mb-3 border-warning">
+            <div class="card-header text-white">
                 <h6 class="m-0"><i class="fas fa-list"></i> Existing Movement Details</h6>
             </div>
             <div class="card-body">
@@ -116,7 +116,7 @@
                                         class="{{ $detail->is_executed ? 'table-success' : '' }}">
                                         <td>{{ $index + 1 }}</td>
                                         <td>
-                                            <span class="badge {{ $detail->shift === 'AM' ? 'bg-primary' : 'bg-warning' }}">
+                                            <span class="{{ $detail->shift === 'AM' ? 'text-primary' : 'text-warning' }}">
                                                 {{ $detail->shift }}
                                             </span>
                                         </td>
@@ -130,7 +130,7 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <span class="badge {{ $detail->is_executed ? 'bg-success' : ($detail->is_expired ? 'bg-danger' : 'bg-warning') }}">
+                                            <span class="{{ $detail->is_executed ? 'text-success' : ($detail->is_expired ? 'text-danger' : 'text-warning') }}">
                                                 {{ $detail->detail_status }}
                                             </span>
                                         </td>

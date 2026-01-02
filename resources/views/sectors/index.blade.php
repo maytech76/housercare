@@ -12,7 +12,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="card-title">Sectors of the System</h3>
                     {{-- <button type="button" class="btn btn-success-gradient btn-w-xs mb-1"> + Usuario</button> --}}
-                    <a class="btn ripple btn-teal" {{-- data-bs-target="#select2modal" data-bs-toggle="modal" --}} href="{{route('sectors.create')}} ">+ Nuevo</a>
+                    <a class="btn ripple btn-teal" {{-- data-bs-target="#select2modal" data-bs-toggle="modal" --}} href="{{route('sectors.create')}} ">+ New Sector</a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
