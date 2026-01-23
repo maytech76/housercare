@@ -192,7 +192,10 @@
 	<script src="{{asset('admin/plugins/colorpicker/pickr.es5.min.js')}}"></script>
 	{{-- <script src="{{asset('admin/js/colorpicker.js')}}"></script> --}}
 
-	<!--Dropzone-js-->
+	<!--Chat-chartjs-->
+	<!-- Internal Chartjs js -->
+	<script src="{{asset('admin/js/chart.chartjs.js')}}"></script>
+	
 
 	<!--Internal  Form-wizard js -->
 	{{-- <script src="{{asset('admin/js/form-wizard.js')}}"></script>
