@@ -154,7 +154,7 @@ Route::middleware([
         })->name('dashboard');
 
         Route::get('/admin/dashboard', [Dashboard::class, 'showDashboard'])->name('dashboard');
-      
+        
 
         Route::get('/admin/products', function () {
             return view('admin/products');

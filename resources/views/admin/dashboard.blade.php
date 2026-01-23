@@ -38,46 +38,22 @@
                     <!-- row -->
                     <div class="row row-sm">
 
-                        {{-- Privados Unico --}}
-                        <div class="col-xl-3 col-lg-6 col-md-6 col-xm-12">
-                            <a href="#">
-                              <div class="card overflow-hidden sales-card bg-primary-gradient">
-                                 <div class="px-3 pt-3  pb-2 pt-0">
-                                    <div class="">
-                                        <h6 class="mb-3 tx-12 text-white">PRIVADOS</h6>
-                                    </div>
-                                    <div class="pb-0 mt-0">
-                                        <div class="d-flex">
-                                            <div class="">
-                                                <h5 class="tx-20 fw-bold mb-1 text-white">Exclusivos</h5>
-                                                <p class="mb-0 tx-12 text-white op-7">por Invitado</p>
-                                            </div>
-                                            <span class="float-end my-auto ms-auto">
-                                                <i class="fa fa-user text-white"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                  </div>                      
-                                </div> 
-                            </a>
-                        </div>
-
-                        {{-- Eventos Grupales --}}
+                        {{-- Horses --}}
                         <div class="col-xl-3 col-lg-6 col-md-6 col-xm-12">
                             <a href="#">
                               <div class="card overflow-hidden sales-card bg-danger-gradient">
                                 <div class="px-3 pt-3  pb-2 pt-0">
                                     <div class="">
-                                        <h6 class="mb-3 tx-12 text-white">PERSONALES</h6>
+                                        <h6 class="mb-3 tx-12 text-white">HORSES</h6>
                                     </div>
                                     <div class="pb-0 mt-0">
                                         <div class="d-flex">
                                             <div class="">
-                                                <h5 class="tx-20 fw-bold mb-1 text-white">Grupo Social</h5>
-                                                <p class="mb-0 tx-12 text-white op-7">Invitación por Grupo</p>
+                                                <h5 class="tx-20 fw-bold mb-1 text-white">{{ $horsesCount}} </h5>
+                                                <p class="mb-0 tx-12 text-white op-7">Total de Caballos</p>
                                             </div>
                                             <span class="float-end my-auto ms-auto">
-                                                <i class="fa fa-sitemap text-white"></i>
+                                                <i class="fa fa-horse text-white"></i>
                                             </span>
                                         </div>
                                     </div>
@@ -86,47 +62,109 @@
                             </a>
                         </div>
 
-                        {{-- Eventos Certificados --}}
+                        {{-- Especiales--}}
+                        <div class="col-xl-3 col-lg-6 col-md-6 col-xm-12">
+                            <a href="#">
+                              <div class="card overflow-hidden sales-card bg-primary">
+                                 <div class="px-3 pt-3  pb-2">
+                                    <div class="">
+                                        <h6 class="mb-3 tx-12 text-white">ESPECIALS</h6>
+                                    </div>
+                                    <div class="pb-2 mt-0">
+                                        <div class="d-flex justify-content-between gap-3"> 
+
+
+                                            <div class="text-center">
+                                                <h6 class="mb-1">Totales</h6>
+                                                <h6 class="mb-0">{{ $especialtStats['total'] ?? 0 }}</h6>   
+                                            </div>
+
+                                            <div class="text-center">
+                                                <h6 class="mb-1">Asigned</h6>
+                                                <h6 class="mb-0">{{ $especialtStats['assigned'] ?? 0 }}</h6>   
+                                            </div>
+                                    
+                                            <div class="text-center">
+                                                <h6 class="mb-1">Executed</h6>
+                                                <h6 class="mb-0">{{ $especialtStats['executed'] ?? 0 }}</h6>   
+                                            </div>
+                                    
+                                            
+                                            
+                                        </div>
+                                    </div>
+                                  </div>                      
+                                </div> 
+                            </a>
+                        </div>
+
+
+                        {{-- Movements --}}
                         <div class="col-xl-3 col-lg-6 col-md-6 col-xm-12">
                             <div class="card overflow-hidden sales-card bg-success-gradient">
                                 <div class="px-3 pt-3  pb-2 pt-0">
                                     <div class="">
-                                        <h6 class="mb-3 tx-12 text-white">PROFESIONALES</h6>
+                                        <h6 class="mb-3 tx-12 text-white">MOVEMENTS</h6>
                                     </div>
-                                    <div class="pb-0 mt-0">
-                                        <div class="d-flex">
-                                            <div class="">
-                                                <h4 class="tx-20 fw-bold mb-1 text-white">Certificados</h4>
-                                                <p class="mb-0 tx-12 text-white op-7">Profesionales & Academicos </p>
+
+                                    <div class="pb-2 mt-0">
+                                        <div class="d-flex justify-content-between gap-3"> <!-- gap-3 para separación de 1rem -->
+                                            
+                                            <div class="text-center">
+                                                <h6 class="mb-1">Asigned</h6>
+                                                <h6 class="mb-0">{{ $movementStats['assigned'] ?? 0 }}</h6>   
                                             </div>
-                                            <span class="float-end my-auto ms-auto">
-                                                <i class="far fa-address-card text-white"></i>
-                                            </span>
+                                    
+                                            <div class="text-center">
+                                                <h6 class="mb-1">Executed</h6>
+                                                <h6 class="mb-0">{{ $movementStats['executed'] ?? 0 }}</h6>   
+                                            </div>
+                                    
+                                            <div class="text-center">
+                                                <h6 class="mb-1">Partially</h6>
+                                                <h6 class="mb-0">{{ $movementStats['partially'] ?? 0 }}</h6>   
+                                            </div>
+                                            
                                         </div>
                                     </div>
+                                    
                                 </div>
                             
                             </div>
                         </div>
 
-                        {{-- Eventos Deportivos --}}
+                        {{-- Supplies --}}
                         <div class="col-xl-3 col-lg-6 col-md-6 col-xm-12">
                             <div class="card overflow-hidden sales-card bg-warning-gradient">
                                 <div class="px-3 pt-3  pb-2 pt-0">
                                     <div class="">
-                                        <h6 class="mb-3 tx-12 text-white">ATLETAS</h6>
+                                        <h6 class="mb-3 tx-12 text-white">SUPPLIES</h6>
                                     </div>
                                     <div class="pb-0 mt-0">
                                         <div class="d-flex">
-                                            <div class="">
-                                                <h4 class="tx-20 fw-bold mb-1 text-white">Competencias</h4>
-                                                <p class="mb-0 tx-12 text-white op-7">Deporte & Recreación</p>
+                                           
+                                            <div class="pb-2 mt-0">
+                                                <div class="d-flex justify-content-between gap-3"> <!-- gap-3 para separación de 1rem -->
+                                                    
+                                                    <div class="text-center">
+                                                        <h6 class="mb-1">Total</h6>
+                                                        <h6 class="mb-0">{{ $suppliestStats['total'] ?? 0 }}</h6>   
+                                                    </div>
+
+                                                    <div class="text-center">
+                                                        <h6 class="mb-1">Asigned</h6>
+                                                        <h6 class="mb-0">{{ $suppliestStats['assigned'] ?? 0 }}</h6>   
+                                                    </div>
+                                            
+                                                    <div class="text-center">
+                                                        <h6 class="mb-1">Executed</h6>
+                                                        <h6 class="mb-0">{{ $suppliestStats['executed'] ?? 0 }}</h6>   
+                                                    </div>
+                                            
+                                                   
+                                                    
+                                                </div>
                                             </div>
-                                            <span class="float-end my-auto ms-auto">
-                                                <i class="fa fa-trophy text-white"></i>
-                                              
-                                                {{-- <span class="text-white op-7"> -152.3</span> --}}
-                                            </span>
                                         </div>
                                     </div>
                                 </div>

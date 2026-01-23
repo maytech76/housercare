@@ -137,11 +137,7 @@ class MovementDetail extends Model
     private function createHistory(int $fromStableId, int $executorId): void{
 
         try {
-            // Verificar si la tabla de historial existe antes de insertar
-            if (!Schema::hasTable('movement_histories')) {
-                Log::warning('Tabla movement_histories no existe, omitiendo registro de historial');
-                return;
-            }
+
 
             $historyData = [
                 'horse_id' => $this->horse_id,
