@@ -280,8 +280,7 @@ Route::middleware([
         Route::delete('/assignment-details/{assignmentDetail}', [AssignmentController::class, 'destroyDetail'])->name('assignment-details.destroy');
         
         /* Eliminar Asignacion de la tabla asignaciones index */
-       /*  Route::delete('/assignments/{assignment}', [AssignmentController::class, 'destroy'])->name('assignments.destroy');
- */
+       /*  Route::delete('/assignments/{assignment}', [AssignmentController::class, 'destroy'])->name('assignments.destroy');*/
          Route::put('/assignments/{assignment}', [AssignmentController::class, 'update'])
         ->name('assignments.update');
 
@@ -347,8 +346,7 @@ Route::middleware([
 
             Route::prefix('horsecard2')->group(function () {
                 // Ruta para obtener detalles en la card2 de la Asignación
-                Route::get('/assignments/{assignment}/assigned-details', [HorseCard2Controller::class, 'assignedDetails'])
-                    ->name('horsecard2.assigned-details'); 
+                Route::get('/assignments/{assignment}/assigned-details', [HorseCard2Controller::class, 'assignedDetails'])->name('horsecard2.assigned-details'); 
 
                 //  Rura para Ejecutar servicio individual
                 Route::post('/assignments/{assignment}/execute-service', [HorseCard2Controller::class, 'executeService'])
@@ -406,8 +404,7 @@ Route::middleware([
         Route::get('/sectors/{sector}/horses-data', [StableController::class, 'getHorsesBySectorData'])
         ->name('sectors.horses.data');
 
-        Route::get('/horses/{horse}/details', [StableController::class, 'getHorseDetails'])
-        ->name('horses.details');
+        Route::get('/horses/{horse}/details', [StableController::class, 'getHorseDetails'])->name('horses.details');
 
 
         // Horse Movements
@@ -440,8 +437,10 @@ Route::middleware([
         Route::prefix('sectors')->group(function () {
 
             Route::get('/show', [SectorController::class, 'showSectors'])->name('sectors.show');
+            Route::get('/show2', [SectorController::class, 'showSectors2'])->name('sectors.show2');
             Route::get('/{sector}/horses', [SectorController::class, 'getSectorHorses'])->name('sectors.horses');
             Route::get('/{sector}/detail', [SectorController::class, 'detail'])->name('sectors.detail');
+            Route::get('/{sector}/detail2', [SectorController::class, 'detail2'])->name('sectors.detail2');
 
         });
 

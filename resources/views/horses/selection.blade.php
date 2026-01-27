@@ -45,7 +45,7 @@
 
                  {{-- Cards Assigned Especials --}}
                 <div class="col-xl-3 col-lg-6 col-sm-12 mb-4">
-                    <a href="{{ route('horsecard2.index')}}" class="text-decoration-none">
+                    <a href="{{ route('sectors.show2')}}" class="text-decoration-none">
                         <div class="card h-100">
                             <img alt="Image" class="img-fluid card-img-top" src="../admin/img/photos/especial.jpg">
                             <div class="card-body text-center">

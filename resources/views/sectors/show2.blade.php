@@ -7,8 +7,8 @@
         <div class="container-fluid py-4">
             <div class="row mb-4">
                 <div class="col-12">
-                    <h1 class="h2">Sector Management</h1>
-                    <p class="text-muted">Visualization of horses by sector and stable</p>
+                    <h1 class="h2">Horses by sector</h1>
+                    <p class="text-muted">Visualization of horses by sector</p>
                 </div>
             </div>
     
@@ -28,14 +28,15 @@
                        data-sector-id="{{ $sector->id }}"
                        data-sector-name="{{ $sector->name }}"
                        data-has-movement="{{ $hasHorsesWithMovement ? 'true' : 'false' }}">
+
                     
                         <div class="card sector-card" style="border-left: 5px solid {{ $sector->color ?? '#3490dc' }};">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="card-title mb-0">{{ $sector->name }}</h5>
-                                    <p class="p-2 fw-100" style="border-radius: 3px; border: 1px solid {{ $sector->color ?? '' }};">
+                                    {{-- <p class="p-2 fw-100" style="border-radius: 3px; border: 1px solid {{ $sector->color ?? '' }};">
                                         {{ $sector->stables->count() }} Locations
-                                    </p>
+                                    </p> --}}
                                 </div>
                                 
                                 @if($sector->description)
@@ -49,7 +50,7 @@
                                                 <th>Horse</th>
                                                 <th>Location</th>
                                                 <th>Status</th>
-                                                <th>Move</th>
+                                                <th>Accion</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -79,7 +80,7 @@
                                                     @php
                                                         // Buscar el movimiento del caballo actual
                                                         $movement = $movements[$horse->id] ?? null;
-                                                        $status = $movement->status ?? 'NO MOVE';
+                                                        $status = $movement->status ?? 'NO SERV';
                                                         
                                                         // Mapear clases de color según el status
                                                         $textClass = match($status) {
@@ -122,6 +123,8 @@
                                
                             </div>
                         </div>
+
+
                     </a>
                 </div>
                 @endforeach
@@ -140,28 +143,28 @@
 @endsection
 
 @push('styles')
-<style>
-    .sector-link {
-        text-decoration: none;
-        color: inherit;
-        display: block;
-        cursor: pointer;
-    }
-    
-    .sector-card {
-        transition: all 0.2s ease;
-    }
-    
-    .sector-link:hover .sector-card {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-    }
-    
-    /* Indicador visual para sectores sin movimiento */
-    .sector-link[data-has-movement="false"] .sector-card {
-        border-left: 5px solid #dc3545 !important; /* Rojo para indicar falta de movimiento */
-    }
-</style>
+    <style>
+        .sector-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            cursor: pointer;
+        }
+        
+        .sector-card {
+            transition: all 0.2s ease;
+        }
+        
+        .sector-link:hover .sector-card {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        
+        /* Indicador visual para sectores sin movimiento */
+        .sector-link[data-has-movement="false"] .sector-card {
+            border-left: 5px solid #dc3545 !important; /* Rojo para indicar falta de movimiento */
+        }
+    </style>
 @endpush
 
 @push('scripts')
@@ -209,7 +212,7 @@
                     e.stopPropagation();
                     
                     Swal.fire({
-                        title: 'No Movement Assigned',
+                        title: 'NO SERVICE Assigned',
                         html: `No horses with assigned movement in the sector <strong>"${sectorName}"</strong>`,
                         icon: 'warning',
                         showConfirmButton: true,
@@ -243,4 +246,5 @@
         });
     });
 </script>
+
 @endpush

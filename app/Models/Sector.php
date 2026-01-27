@@ -70,4 +70,9 @@ class Sector extends Model
 
         return $this->hasMany(Movement::class);
     }
+
+    public function assigments(){
+
+        return $this->hasMany(Assigment::class);
+    }
 }
