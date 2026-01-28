@@ -10,6 +10,7 @@ class Assigment extends Model
     use HasFactory;
 
     protected $table = 'assignments';
+    
 
     protected $fillable = [
 
@@ -31,10 +32,20 @@ class Assigment extends Model
         return $this->belongsTo(Horse::class);
     }
 
-    // Relación con Service - CORREGIDA
-    public function service()
-    {
+
+    public function toService(){
+        
         return $this->belongsTo(Service::class, 'service_id');
+    }
+
+    // Relación con Service - CORREGIDA
+    public function service(){
+        return $this->belongsTo(Service::class, 'service_id');
+    }
+
+    public function details(){
+
+        return $this->hasMany(AssigmentDetail::class, 'assigned_id');
     }
 
     // Relación con User (para assigned_by) - CORREGIDA
@@ -43,21 +54,17 @@ class Assigment extends Model
     }
 
     // Relación con User (para executed_by) - CORREGIDA  
-    public function executedBy()
-    {
+    public function executedBy(){
+
         return $this->belongsTo(User::class, 'executed_by');
     }
 
     // Relación con AssignmentDetails
-    public function assignmentDetails()
-    {
+    public function assignmentDetails(){
         return $this->hasMany(AssigmentDetail::class, 'assigned_id');
     }
 
-    // ELIMINAR esta relación conflictiva
-    // public function user(){
-    //     return $this->belongsTo(User::class);
-    // }
+   
 
     // Scopes
     public function scopeAssigned($query)
@@ -70,6 +77,7 @@ class Assigment extends Model
         return $query->where('status', 'EXECUTED');
     }
 
+
     public function scopeByDate($query, $date)
     {
         return $query->where('assigned_date', $date);
@@ -81,8 +89,8 @@ class Assigment extends Model
     }
 
     // Generar número de asignación
-    public static function generateSupplyNumber()
-    {
+    public static function generateSupplyNumber(){
+
         $lastAssigned = self::orderBy('id', 'desc')->first();
         $nextId = $lastAssigned ? $lastAssigned->id + 1 : 1;
         return 'ASIG-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);

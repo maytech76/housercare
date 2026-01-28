@@ -70,8 +70,8 @@ class Stable extends Model
         ];
     }
 
-    public function getAvailableSpacesAttribute(): int
-    {
+    public function getAvailableSpacesAttribute(): int{
+
         $occupied = $this->horses()->where('status', 1)->count();
         return max(0, $this->capacity - $occupied);
     }
@@ -86,8 +86,8 @@ class Stable extends Model
         return $types[$this->type] ?? $this->type;
     }
 
-    public function getConditionNameAttribute(): string
-    {
+    public function getConditionNameAttribute(): string{
+        
         $conditions = [
             'use' => 'In Use',
             'mant' => 'Maintenance',

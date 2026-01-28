@@ -133,6 +133,8 @@ Route::get('/test-time', function() {
 
 /* ------ FINAL RUTAS CLIENTES ------- */
 
+
+/* Actualizar estatus de movimiento */
 Route::post('/movements/update-status', [MovementController::class, 'updateStatus'])
     ->name('movements.update-status')
     ->middleware('auth');

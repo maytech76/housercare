@@ -106,6 +106,11 @@ class Horse extends Model
         return $this->hasMany(Assigment::class);
     }
 
+    public function assignments(){
+
+        return $this->hasMany(Assigment::class);
+    }
+
     /**
      * Obtener ubicación actual (con logs)
      */
@@ -145,8 +150,8 @@ class Horse extends Model
         return $this->stable ? $this->stable->name : 'Sin ubicación';
     }
 
-    public function getSectorAttribute()
-    {
+    public function getSectorAttribute(){
+
         return $this->stable ? $this->stable->sector : null;
     }
 

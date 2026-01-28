@@ -14,16 +14,17 @@
     
             <div class="row" id="sectors-container">
                 @foreach($sectors as $sector)
+
                 <div class="col-lg-4 col-md-6 mb-4">
                     @php
                         // Verificar si hay ALGÚN caballo con is_moved = true en este sector
                         $hasHorsesWithMovement = $sector->horses->contains(function($horse) {
-                            return $horse->is_moved == true;
+                            return $horse->add_service == true;
                         });
                     @endphp
                     
                     {{-- SIEMPRE hacer el enlace, pero con atributo data para JavaScript --}}
-                    <a href="{{ $hasHorsesWithMovement ? route('sectors.detail', $sector->id) : 'javascript:void(0)' }}" 
+                    <a href="{{ $hasHorsesWithMovement ? route('sectors.detail2', $sector->id) : 'javascript:void(0)' }}" 
                        class="sector-link" 
                        data-sector-id="{{ $sector->id }}"
                        data-sector-name="{{ $sector->name }}"
@@ -68,26 +69,27 @@
                                                             style="width: 30px; height: 30px;"></div>
                                                         @endif
                                                         <div>
-                                                            <div class="fw-light">{{ $horse->name }}</div>
+                                                            <div class="fw-light text-xs">{{ $horse->name }}</div>
                                                             {{-- <small class="text-muted">ID: {{ $horse->id }}</small> --}}
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td class="stable-info">{{ $horse->stable->name ?? 'N/A' }}</td>
+                                                <td class="stable-info" style="padding-left: 1.3rem">{{ $horse->stable->name ?? 'N/A' }}</td>
 
-                                                {{-- Mostrar el status del movimiento --}}
+                                                {{-- Mostrar el status del la asignacion --}}
                                                 <td class="stable-info">
                                                     @php
                                                         // Buscar el movimiento del caballo actual
-                                                        $movement = $movements[$horse->id] ?? null;
-                                                        $status = $movement->status ?? 'NO SERV';
+                                                        $assigned = $assignments[$horse->id] ?? null;
+                                                        $status = $assigned->status ?? 'NO SERV';
                                                         
                                                         // Mapear clases de color según el status
                                                         $textClass = match($status) {
+
                                                             'ASSIGNED' => 'text-warning fw-light',
-                                                            'PARTIALLY' => 'text-info fw-light',
                                                             'EXECUTED' => 'text-success fw-light',
                                                             default => 'text-secondary fw-light'
+
                                                         };
                                                     @endphp
                                                     
@@ -98,12 +100,12 @@
                                                 
                                                 {{-- Indicador is_moved --}}
                                                 <td class="text-center">
-                                                    @if($horse->is_moved)
+                                                    @if($horse->add_service)
                                                         <span class="badge bg-success" title="Ready to move">
                                                             <i class="fas fa-check-circle"></i>
                                                         </span>
                                                     @else
-                                                        <span class="badge bg-secondary" title="Not ready to move">
+                                                        <span class="badge bg-danger" title="Not ready to move">
                                                             <i class="fas fa-times-circle"></i>
                                                         </span>
                                                     @endif
@@ -127,6 +129,7 @@
 
                     </a>
                 </div>
+
                 @endforeach
             </div>
     

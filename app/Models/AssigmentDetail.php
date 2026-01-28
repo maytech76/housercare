@@ -28,7 +28,7 @@ class AssigmentDetail extends Model
 
     public function assignment()
     {
-        return $this->belongsTo(Assigment::class, 'assigned_id'); // AGREGAR 'assigned_id'
+        return $this->belongsTo(Assigment::class, 'assigned_id'); // 'assigned_id' no 'assigment_id'
     }
 
     public function service(){
